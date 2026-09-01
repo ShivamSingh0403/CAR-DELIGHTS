@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0B0F19;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#111827;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="cardBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#334155;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#1E293B;stop-opacity:0.3" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="500" fill="url(#bgGradient)"/>
+  
+  <!-- Subtle Studio Grid -->
+  <path d="M 0 125 L 800 125 M 0 250 L 800 250 M 0 375 L 800 375" stroke="#1E293B" stroke-width="1" stroke-dasharray="4,8" opacity="0.3"/>
+  <path d="M 200 0 L 200 500 M 400 0 L 400 500 M 600 0 L 600 500" stroke="#1E293B" stroke-width="1" stroke-dasharray="4,8" opacity="0.3"/>
+
+  <!-- Minimal Dark Card -->
+  <g transform="translate(400, 240)">
+    <rect x="-190" y="-90" width="380" height="180" rx="16" fill="#0A0E1A" stroke="url(#cardBorder)" stroke-width="1.5"/>
+    
+    <!-- Camera Glyph -->
+    <path d="M -24 -24 L -14 -38 L 14 -38 L 24 -24 L 38 -24 C 44 -24, 48 -20, 48 -14 L 48 24 C 48 30, 44 34, 38 34 L -38 34 C -44 34, -48 30, -48 24 L -48 -14 C -48 -20, -44 -24, -38 -24 Z" fill="none" stroke="#64748B" stroke-width="2.5" stroke-linejoin="round"/>
+    <circle cx="0" cy="5" r="16" fill="none" stroke="#64748B" stroke-width="2.5"/>
+    <circle cx="0" cy="5" r="6" fill="#475569"/>
+
+    <text x="0" y="52" font-family="'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="700" text-anchor="middle" fill="#E2E8F0" letter-spacing="1.5">REAL PHOTO REQUIRED</text>
+    <text x="0" y="72" font-family="'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="500" text-anchor="middle" fill="#64748B" letter-spacing="0.5">Asset not uploaded</text>
+  </g>
+
+  <!-- Bottom Notice -->
+  <text x="400" y="450" font-family="'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="500" text-anchor="middle" fill="#334155" letter-spacing="1">CAR DELIGHTS AUTOMOTIVE PHOTOGRAPHY ARCHIVE</text>
+</svg>

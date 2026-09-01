@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}My Order History — CAR DELIGHTS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom" style="border-color: var(--border-color);">
+    <div>
+      <h1 class="fw-bold mb-1">My Orders</h1>
+      <p class="text-secondary small mb-0">Track all your spare parts orders and 3D vehicle build purchases.</p>
+    </div>
+    <a href="{% url 'orders:track_order' %}" class="btn btn-cd-outline btn-sm">
+      <i class="bi bi-geo-alt me-1"></i> Track Order
+    </a>
+  </div>
+
+  {% if orders %}
+    <div class="d-flex flex-column gap-4">
+      {% for order in orders %}
+        <div class="card-cd p-4">
+          <div class="d-flex flex-wrap justify-content-between align-items-center pb-3 border-bottom border-secondary mb-3">
+            <div>
+              <span class="text-muted small">Order ID:</span>
+              <strong class="text-danger ms-1">{{ order.order_id }}</strong>
+              <span class="text-muted small ms-3">Placed: {{ order.created_at|date:"d M Y, h:i A" }}</span>
+            </div>
+            <div class="d-flex align-items-center gap-2 mt-2 mt-sm-0">
+              <span class="badge bg-success">{{ order.get_status_display }}</span>
+              <span class="fw-bold text-white fs-5 ms-2">{{ order.get_formatted_total }}</span>
+            </div>
+          </div>
+
+          <!-- Items list -->
+          <div class="d-flex flex-column gap-2 mb-3">
+            {% for item in order.items.all %}
+              <div class="d-flex justify-content-between align-items-center p-2 rounded bg-dark border border-secondary">
+                <div class="d-flex align-items-center gap-2">
+                  <span class="badge bg-secondary">{{ item.get_item_type_display }}</span>
+                  <strong class="text-white small">{{ item.item_name }}</strong>
+                </div>
+                <div class="text-secondary small">Qty: {{ item.quantity }} × {{ item.get_formatted_price }}</div>
+              </div>
+            {% endfor %}
+          </div>
+
+          <div class="d-flex justify-content-end gap-2">
+            <a href="{% url 'orders:order_detail' order_id=order.order_id %}" class="btn btn-cd-primary btn-sm">
+              View Invoice & Details
+            </a>
+            <a href="{% url 'orders:track_order' %}?order_id={{ order.order_id }}" class="btn btn-cd-outline btn-sm">
+              Track Courier
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="p-5 text-center text-muted" style="background: var(--bg-secondary); border-radius: var(--radius-md);">
+      <i class="bi bi-bag-x fs-1 d-block mb-3 text-secondary"></i>
+      <h4 class="text-white">No orders found</h4>
+      <p class="text-muted">You haven't placed any orders yet.</p>
+      <a href="{% url 'products:product_list' %}" class="btn btn-cd-primary mt-2">Explore Marketplace</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

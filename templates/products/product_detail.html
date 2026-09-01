@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} — CAR DELIGHTS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'products:product_list' %}">Parts</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'products:product_list' %}?category={{ product.category.slug }}">{{ product.category.name }}</a></li>
+      <li class="breadcrumb-item active text-white" aria-current="page">{{ product.name|truncatechars:35 }}</li>
+    </ol>
+  </nav>
+
+  <div class="row g-4 mb-5">
+    <!-- Left Product Image & Gallery -->
+    <div class="col-lg-6">
+      <!-- View Switcher (Product Only vs Installed on Vehicle) -->
+      {% if product.installed_image %}
+        <div class="d-flex gap-2 mb-2">
+          <button type="button" class="btn btn-cd-primary btn-sm px-3" id="btn-view-product" onclick="switchToProductView()">
+            <i class="bi bi-box-seam me-1"></i> Product View
+          </button>
+          <button type="button" class="btn btn-cd-outline btn-sm px-3" id="btn-view-installed" onclick="switchToInstalledView('{{ product.installed_image.get_image_url }}', '{{ product.installed_image.alt_text }}', '{{ product.installed_image.installed_vehicle.full_name|default:'Vehicle' }}')">
+            <i class="bi bi-car-front-fill text-success me-1"></i> Installed on {{ product.installed_image.installed_vehicle.model|default:'Car' }}
+          </button>
+        </div>
+      {% endif %}
+
+      <!-- Main Stage with Zoom / Fullscreen -->
+      <div class="card-cd overflow-hidden mb-3 position-relative" style="background: #0B0F19;">
+        <div class="position-absolute top-0 end-0 p-2" style="z-index: 10;">
+          <button type="button" class="action-btn-circle" onclick="openFullscreenModal()" title="View Fullscreen Lightbox">
+            <i class="bi bi-arrows-fullscreen"></i>
+          </button>
+        </div>
+        <div class="card-img-wrapper" style="padding-top: 75%; cursor: zoom-in;" onclick="openFullscreenModal()">
+          <img src="{{ product.get_primary_image_url }}" id="main-product-image" alt="{{ product.name }}" style="transition: transform 0.3s ease;">
+        </div>
+      </div>
+
+      <!-- Thumbnail Carousel -->
+      {% if product.images.count > 1 %}
+        <div class="d-flex gap-2 overflow-x-auto pb-2" id="gallery-thumb-strip">
+          {% for img in product.images.all %}
+            <div class="position-relative flex-shrink-0 cursor-pointer" onclick="changeMainImage('{{ img.get_image_url }}', '{{ img.alt_text }}', this)">
+              <img src="{{ img.get_image_url }}" alt="{{ img.alt_text }}" class="rounded border {% if forloop.first %}border-danger shadow{% else %}border-secondary opacity-75{% endif %} gallery-thumb" style="width: 85px; height: 62px; object-fit: cover;">
+              <span class="position-absolute bottom-0 start-0 w-100 text-center text-truncate small px-1" style="background: rgba(0,0,0,0.75); font-size: 9px; color: #E2E8F0;">
+                {{ img.get_image_type_display|truncatechars:12 }}
+              </span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Real Asset & Licensing Verification Badge -->
+      <div class="p-2 rounded mt-2 d-flex align-items-center justify-content-between" style="background: rgba(15, 23, 42, 0.8); border: 1px solid #1E293B;">
+        <div class="d-flex align-items-center gap-2 small">
+          <i class="bi bi-shield-fill-check text-cyan fs-6"></i>
+          <span class="text-white">Source: <strong>{{ product.images.first.source|default:'OEM Engineering Media' }}</strong></span>
+        </div>
+        <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 small">
+          <i class="bi bi-patch-check"></i> {{ product.images.first.license_status|default:'VALID' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Right Product Info & Actions -->
+    <div class="col-lg-6">
+      <div class="p-4 rounded-4 shadow-sm h-100 d-flex flex-column" style="background: var(--bg-secondary); border: 1px solid var(--border-color);">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="badge-tag badge-discount">{{ product.brand.name }}</span>
+          <span class="text-muted small">SKU: {{ product.sku }}</span>
+        </div>
+
+        <h2 class="fw-bold mb-2 text-white">{{ product.name }}</h2>
+
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <span class="badge bg-warning text-dark px-2 py-1">★ {{ product.rating }}</span>
+          <span class="text-secondary small">{{ product.review_count }} Verified Buyer Reviews</span>
+          <span class="text-muted">•</span>
+          <span class="text-success small fw-bold"><i class="bi bi-shield-check"></i> {{ product.warranty }}</span>
+        </div>
+
+        <!-- Pricing Card -->
+        <div class="p-3 rounded-3 mb-4" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color);">
+          <div class="d-flex align-items-baseline gap-2 mb-1">
+            <span class="fw-bold fs-2 text-white">{{ product.get_formatted_price }}</span>
+            {% if product.mrp > product.price %}
+              <span class="text-muted text-decoration-line-through fs-5">{{ product.get_formatted_mrp }}</span>
+              <span class="badge bg-danger ms-2">Save {{ product.discount_percentage }}% ({{ product.get_savings }})</span>
+            {% endif %}
+          </div>
+          <div class="small text-muted">Inclusive of all taxes. Free Express Shipping across India.</div>
+        </div>
+
+        <!-- Dynamic Vehicle Compatibility Checker Tool -->
+        <div class="p-3 rounded-3 mb-4" style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color);">
+          <div class="small fw-bold text-white mb-2"><i class="bi bi-shield-check text-cyan me-1"></i> Vehicle Fitment Check</div>
+          <div class="d-flex gap-2">
+            <select id="compat-vehicle-select" class="form-select form-select-sm bg-dark text-white border-secondary">
+              <option value="">Choose your car model...</option>
+              {% for v in nav_brands %}
+                <optgroup label="{{ v.name }}">
+                  {% for car in v.vehicles.all %}
+                    <option value="{{ car.id }}">{{ car.full_name }}</option>
+                  {% endfor %}
+                </optgroup>
+              {% endfor %}
+            </select>
+            <button type="button" class="btn btn-cd-outline btn-sm px-3" id="btn-check-compat" data-product-id="{{ product.id }}">Check</button>
+          </div>
+          <div id="compat-result-box" class="mt-2 small" style="display:none;"></div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mt-auto d-flex flex-wrap gap-2">
+          <button class="btn btn-cd-primary py-3 px-4 fs-6 flex-grow-1 btn-add-to-cart-ajax" data-product-id="{{ product.id }}" data-item-type="product" data-quantity="1">
+            <i class="bi bi-cart-plus me-2"></i> ADD TO CART
+          </button>
+          <button class="btn btn-cd-gold py-3 px-4 fs-6 flex-grow-1" onclick="window.location.href='{% url 'orders:checkout' %}'">
+            <i class="bi bi-lightning-fill me-1"></i> BUY NOW
+          </button>
+          <button class="btn btn-cd-outline py-3 px-3 btn-wishlist-toggle" data-product-id="{{ product.id }}" title="Wishlist">
+            <i class="bi bi-heart"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Specifications & Description -->
+  <div class="row g-4 mb-5">
+    <div class="col-lg-7">
+      <div class="p-4 rounded-4 shadow-sm" style="background: var(--bg-secondary); border: 1px solid var(--border-color);">
+        <h5 class="fw-bold text-white mb-3"><i class="bi bi-card-text text-danger me-2"></i> Product Description</h5>
+        <p class="text-secondary leading-relaxed mb-4">{{ product.description }}</p>
+
+        <h6 class="fw-bold text-white mb-3">Specifications & Dimensions</h6>
+        <table class="table table-dark table-sm mb-0">
+          <tbody>
+            <tr>
+              <td class="text-muted w-50" style="background:transparent;">Brand Manufacturer</td>
+              <td class="fw-bold text-white" style="background:transparent;">{{ product.brand.name }}</td>
+            </tr>
+            <tr>
+              <td class="text-muted" style="background:transparent;">SKU Number</td>
+              <td class="fw-bold text-white" style="background:transparent;">{{ product.sku }}</td>
+            </tr>
+            <tr>
+              <td class="text-muted" style="background:transparent;">Warranty Duration</td>
+              <td class="fw-bold text-white" style="background:transparent;">{{ product.warranty }}</td>
+            </tr>
+            {% for spec in product.specifications.all %}
+              <tr>
+                <td class="text-muted" style="background:transparent;">{{ spec.key }}</td>
+                <td class="fw-bold text-white" style="background:transparent;">{{ spec.value }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Verified Reviews -->
+    <div class="col-lg-5">
+      <div class="p-4 rounded-4 shadow-sm h-100" style="background: var(--bg-secondary); border: 1px solid var(--border-color);">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold text-white mb-0"><i class="bi bi-star-fill text-warning me-1"></i> Customer Reviews</h5>
+          <a href="{% url 'reviews:add_product_review' product_id=product.id %}" class="btn btn-cd-outline btn-sm py-1 px-2">Write Review</a>
+        </div>
+
+        {% if reviews %}
+          <div class="d-flex flex-column gap-3">
+            {% for rev in reviews %}
+              <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color);">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <span class="fw-bold text-white small">{{ rev.user.get_greeting_name }}</span>
+                  <span class="text-warning small">★ {{ rev.rating }}/5</span>
+                </div>
+                <div class="fw-semibold text-danger small mb-1">{{ rev.title }}</div>
+                <p class="text-secondary small mb-0">{{ rev.comment }}</p>
+                {% if rev.is_verified_purchase %}
+                  <div class="text-success mt-1" style="font-size:0.7rem;"><i class="bi bi-check-circle-fill me-1"></i> Verified Purchase</div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="text-muted small">No reviews submitted yet for this product. Be the first verified buyer to review!</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <!-- Lightbox Modal -->
+  <div class="modal fade" id="imageLightboxModal" tabindex="-1" aria-labelledby="imageLightboxModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-content" style="background: #090D16; border: 1px solid var(--border-color);">
+        <div class="modal-header border-secondary">
+          <h6 class="modal-title text-white fw-bold" id="imageLightboxModalLabel">{{ product.name }}</h6>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center p-3">
+          <img src="{{ product.get_primary_image_url }}" id="lightbox-image" class="img-fluid rounded" style="max-height: 75vh; object-fit: contain;">
+          <div id="lightbox-caption" class="text-secondary small mt-2">{{ product.name }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  let defaultProductImageUrl = "{{ product.get_primary_image_url }}";
+
+  function changeMainImage(url, alt, el) {
+    const mainImg = document.getElementById('main-product-image');
+    if (mainImg) mainImg.src = url;
+    const thumbs = document.querySelectorAll('.gallery-thumb');
+    thumbs.forEach(t => {
+      t.classList.remove('border-danger', 'shadow');
+      t.classList.add('border-secondary', 'opacity-75');
+    });
+    if (el) {
+      const img = el.querySelector('img') || el;
+      img.classList.remove('border-secondary', 'opacity-75');
+      img.classList.add('border-danger', 'shadow');
+    }
+  }
+
+  function switchToProductView() {
+    changeMainImage(defaultProductImageUrl, '{{ product.name }}', null);
+    document.getElementById('btn-view-product')?.classList.replace('btn-cd-outline', 'btn-cd-primary');
+    document.getElementById('btn-view-installed')?.classList.replace('btn-cd-primary', 'btn-cd-outline');
+  }
+
+  function switchToInstalledView(url, alt, vehName) {
+    changeMainImage(url, alt, null);
+    document.getElementById('btn-view-installed')?.classList.replace('btn-cd-outline', 'btn-cd-primary');
+    document.getElementById('btn-view-product')?.classList.replace('btn-cd-primary', 'btn-cd-outline');
+  }
+
+  function openFullscreenModal() {
+    const mainImg = document.getElementById('main-product-image');
+    const lightboxImg = document.getElementById('lightbox-image');
+    if (mainImg && lightboxImg) {
+      lightboxImg.src = mainImg.src;
+      const modal = new bootstrap.Modal(document.getElementById('imageLightboxModal'));
+      modal.show();
+    }
+  }
+
+  document.getElementById('btn-check-compat')?.addEventListener('click', () => {
+    const vId = document.getElementById('compat-vehicle-select').value;
+    const pId = document.getElementById('btn-check-compat').dataset.productId;
+    const resBox = document.getElementById('compat-result-box');
+
+    if (!vId) {
+      resBox.className = 'mt-2 small text-warning';
+      resBox.innerHTML = '<i class="bi bi-exclamation-circle"></i> Please select a vehicle first.';
+      resBox.style.display = 'block';
+      return;
+    }
+
+    fetch(`/products/api/compatibility/?product_id=${pId}&vehicle_id=${vId}`)
+      .then(res => res.json())
+      .then(data => {
+        resBox.style.display = 'block';
+        if (data.compatible) {
+          resBox.className = 'mt-2 p-2 rounded small text-success bg-success bg-opacity-10 border border-success';
+          resBox.innerHTML = `<i class="bi bi-check-circle-fill me-1"></i> ${data.message}`;
+        } else {
+          resBox.className = 'mt-2 p-2 rounded small text-danger bg-danger bg-opacity-10 border border-danger';
+          resBox.innerHTML = `<i class="bi bi-x-circle-fill me-1"></i> ${data.message}`;
+        }
+      })
+      .catch(err => console.error(err));
+  });
+</script>
+{% endblock %}

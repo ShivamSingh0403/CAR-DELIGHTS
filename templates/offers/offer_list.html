@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Promotions, Coupons & Festival Offers — CAR DELIGHTS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="mb-4 pb-3 border-bottom" style="border-color: var(--border-color);">
+    <h1 class="fw-bold mb-1">Exclusive Coupons & Offers</h1>
+    <p class="text-secondary small mb-0">Apply verified promo codes during checkout or service bookings for instant discounts.</p>
+  </div>
+
+  <div class="row g-4">
+    {% for offer in all_offers %}
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card-cd p-3">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="badge-tag badge-discount">{{ offer.get_section_display }}</span>
+            <span class="badge bg-warning text-dark px-2 py-1 fw-bold">{{ offer.get_discount_label }}</span>
+          </div>
+
+          <h5 class="fw-bold text-white mb-2">{{ offer.title }}</h5>
+          <p class="text-secondary small mb-3">{{ offer.subtitle }}</p>
+
+          <div class="p-3 rounded-3 mb-3 d-flex justify-content-between align-items-center bg-dark border border-secondary">
+            <div>
+              <div class="text-muted" style="font-size:0.75rem;">COUPON CODE</div>
+              <strong class="text-cyan fs-5 tracking-wide">{{ offer.coupon_code }}</strong>
+            </div>
+            <button class="btn btn-cd-outline btn-sm py-1 px-3" onclick="navigator.clipboard.writeText('{{ offer.coupon_code }}'); showToast('Coupon code {{ offer.coupon_code }} copied to clipboard!', 'success');">
+              <i class="bi bi-copy me-1"></i> Copy
+            </button>
+          </div>
+
+          <div class="small text-muted mb-3">
+            {% if offer.minimum_order > 0 %}
+              Min Order: <strong>₹{{ offer.minimum_order|floatformat:0 }}</strong>
+            {% else %}
+              No minimum order value required.
+            {% endif %}
+          </div>
+
+          <a href="{% url 'products:product_list' %}" class="btn btn-cd-primary btn-sm w-100 py-2">
+            Redeem on Marketplace
+          </a>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

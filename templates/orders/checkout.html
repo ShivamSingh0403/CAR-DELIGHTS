@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Secure Checkout — CAR DELIGHTS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="mb-4 pb-3 border-bottom" style="border-color: var(--border-color);">
+    <h1 class="fw-bold mb-1">Secure Checkout</h1>
+    <p class="text-secondary small mb-0">Review your shipping address, order items, and select payment method.</p>
+  </div>
+
+  <form method="post" action="{% url 'orders:place_order' %}">
+    {% csrf_token %}
+    <div class="row g-4">
+      <!-- Left Shipping & Payment Details -->
+      <div class="col-lg-7">
+        <div class="p-4 rounded-4 shadow-sm mb-4" style="background: var(--bg-secondary); border: 1px solid var(--border-color);">
+          <h5 class="fw-bold text-white mb-3"><i class="bi bi-geo-alt-fill text-danger me-2"></i> Shipping & Contact Details</h5>
+
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label small text-muted">Full Name</label>
+              <input type="text" name="full_name" class="form-control bg-dark text-white border-secondary" value="{{ initial_data.full_name }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small text-muted">Email Address</label>
+              <input type="email" name="email" class="form-control bg-dark text-white border-secondary" value="{{ initial_data.email }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label small text-muted">Mobile Number</label>
+              <input type="text" name="phone" class="form-control bg-dark text-white border-secondary" value="{{ initial_data.phone }}" placeholder="+91 98765 43210" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label small text-muted">Street Address / House No.</label>
+              <input type="text" name="address_line1" class="form-control bg-dark text-white border-secondary" value="{{ initial_data.address_line1 }}" placeholder="Apartment, Street name" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label small text-muted">Landmark / Area (Optional)</label>
+              <input type="text" name="address_line2" class="form-control bg-dark text-white border-secondary" value="{{ initial_data.address_line2 }}" placeholder="Near City Mall">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small text-muted">City</label>
+              <input type="text" name="city" class="form-control bg-dark text-white border-secondary" value="{{ initial_data.city }}" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small text-muted">State</label>
+              <input type="text" name="state" class="form-control bg-dark text-white border-secondary" value="{{ initial_data.state }}" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small text-muted">PIN Code</label>
+              <input type="text" name="pincode" class="form-control bg-dark text-white border-secondary" value="{{ initial_data.pincode }}" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Method Selection -->
+        <div class="p-4 rounded-4 shadow-sm" style="background: var(--bg-secondary); border: 1px solid var(--border-color);">
+          <h5 class="fw-bold text-white mb-3"><i class="bi bi-credit-card-2-front-fill text-danger me-2"></i> Payment Mode</h5>
+
+          <div class="d-flex flex-column gap-3 mb-3">
+            <label class="p-3 rounded-3 border border-secondary d-flex align-items-center gap-3 cursor-pointer" style="background: rgba(255,255,255,0.03);">
+              <input type="radio" name="payment_method" value="UPI" class="form-check-input" checked>
+              <div>
+                <div class="fw-bold text-white"><i class="bi bi-qr-code-scan text-success me-1"></i> Instant UPI / QR / NetBanking (Demo Gateway Mode)</div>
+                <div class="text-muted small">Pay securely via GooglePay, PhonePe, Paytm, or NetBanking. Instant confirmation.</div>
+              </div>
+            </label>
+
+            <label class="p-3 rounded-3 border border-secondary d-flex align-items-center gap-3 cursor-pointer" style="background: rgba(255,255,255,0.03);">
+              <input type="radio" name="payment_method" value="Card" class="form-check-input">
+              <div>
+                <div class="fw-bold text-white"><i class="bi bi-credit-card text-info me-1"></i> Credit / Debit Cards (Visa, MasterCard, RuPay)</div>
+                <div class="text-muted small">Encrypted 256-bit safe card checkout with OTP verification.</div>
+              </div>
+            </label>
+
+            <label class="p-3 rounded-3 border border-secondary d-flex align-items-center gap-3 cursor-pointer" style="background: rgba(255,255,255,0.03);">
+              <input type="radio" name="payment_method" value="COD" class="form-check-input">
+              <div>
+                <div class="fw-bold text-white"><i class="bi bi-cash-stack text-warning me-1"></i> Cash on Delivery (COD)</div>
+                <div class="text-muted small">Pay cash or UPI to the courier specialist upon delivery.</div>
+              </div>
+            </label>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small text-muted">Order Notes / Delivery Instructions (Optional)</label>
+            <textarea name="customer_notes" class="form-control bg-dark text-white border-secondary" rows="2" placeholder="e.g. Please deliver after 5 PM"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Order Summary -->
+      <div class="col-lg-5">
+        <div class="p-4 rounded-4 shadow-sm sticky-top" style="top: 90px; background: var(--bg-secondary); border: 1px solid var(--border-color);">
+          <h5 class="fw-bold text-white mb-3">Order Summary ({{ cart.get_item_count }} Items)</h5>
+
+          <!-- Items list preview -->
+          <div class="d-flex flex-column gap-2 mb-3 max-vh-50 overflow-y-auto" style="max-height: 250px;">
+            {% for item in cart.items.all %}
+              <div class="d-flex align-items-center gap-2 p-2 rounded bg-dark border border-secondary">
+                <img src="{{ item.get_image_url }}" alt="{{ item.get_name }}" width="45" height="40" class="rounded" style="object-fit:cover;">
+                <div class="flex-grow-1 overflow-hidden">
+                  <div class="small fw-bold text-white text-truncate">{{ item.get_name }}</div>
+                  <div class="small text-muted">Qty: {{ item.quantity }} × {{ item.get_formatted_price }}</div>
+                </div>
+                <div class="small fw-bold text-white">{{ item.get_formatted_total }}</div>
+              </div>
+            {% endfor %}
+          </div>
+
+          <!-- Total Calculation -->
+          <ul class="list-unstyled small mb-4 border-top border-bottom border-secondary py-3">
+            <li class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Subtotal</span>
+              <span class="fw-bold text-white">{{ cart.get_formatted_subtotal }}</span>
+            </li>
+            {% if cart.discount_amount > 0 %}
+              <li class="d-flex justify-content-between mb-2 text-warning">
+                <span>Coupon ({{ cart.coupon_code }})</span>
+                <span>-₹{{ cart.discount_amount|floatformat:0 }}</span>
+              </li>
+            {% endif %}
+            <li class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Express Shipping</span>
+              <span class="text-success fw-bold">FREE</span>
+            </li>
+            <li class="d-flex justify-content-between pt-2 border-top border-secondary fs-4 fw-bold">
+              <span class="text-white">Total Payable</span>
+              <span class="text-danger">{{ cart.get_formatted_total }}</span>
+            </li>
+          </ul>
+
+          <button type="submit" class="btn btn-cd-primary w-100 py-3 fs-6 fw-bold">
+            <i class="bi bi-shield-lock-fill me-2"></i> PLACE ORDER NOW ({{ cart.get_formatted_total }})
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

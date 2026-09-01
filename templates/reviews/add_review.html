@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Write Verified Review — CAR DELIGHTS{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 680px;">
+  <div class="mb-4 pb-3 border-bottom" style="border-color: var(--border-color);">
+    <h1 class="fw-bold mb-1">Write Verified Review</h1>
+    <p class="text-secondary small mb-0">Reviewing: <strong class="text-white">{{ item.name }}</strong></p>
+  </div>
+
+  <div class="card-cd p-4">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label small text-muted">Overall Rating</label>
+        <select name="rating" class="form-select bg-dark text-white border-secondary">
+          <option value="5" selected>★★★★★ (5 Stars - Exceptional)</option>
+          <option value="4">★★★★☆ (4 Stars - Good)</option>
+          <option value="3">★★★☆☆ (3 Stars - Average)</option>
+          <option value="2">★★☆☆☆ (2 Stars - Below Average)</option>
+          <option value="1">★☆☆☆☆ (1 Star - Poor)</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small text-muted">Review Headline / Title</label>
+        <input type="text" name="title" class="form-control bg-dark text-white border-secondary" placeholder="e.g. Excellent fitment on my vehicle!" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small text-muted">Detailed Comments & Experience</label>
+        <textarea name="comment" class="form-control bg-dark text-white border-secondary" rows="4" placeholder="Describe the build quality, delivery speed, and driving feel..." required></textarea>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label small text-muted">Upload Photo (Optional)</label>
+        <input type="file" name="image" class="form-control bg-dark text-white border-secondary" accept="image/*">
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center pt-3 border-top border-secondary">
+        <a href="{{ item.get_absolute_url }}" class="btn btn-cd-outline">Cancel</a>
+        <button type="submit" class="btn btn-cd-primary">Submit Verified Review</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}{{ service.name }} — CAR DELIGHTS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'services:service_list' %}">Services</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'services:service_list' %}?category={{ service.category.slug }}">{{ service.category.name }}</a></li>
+      <li class="breadcrumb-item active text-white" aria-current="page">{{ service.name }}</li>
+    </ol>
+  </nav>
+
+  <div class="row g-4 mb-5">
+    <div class="col-lg-7">
+      <div class="card-cd overflow-hidden mb-4">
+        <div class="card-img-wrapper" style="padding-top: 60%;">
+          <img src="{{ service.get_image_url }}" alt="{{ service.name }}">
+        </div>
+      </div>
+
+      <div class="p-4 rounded-4 shadow-sm" style="background: var(--bg-secondary); border: 1px solid var(--border-color);">
+        <h4 class="fw-bold text-white mb-3"><i class="bi bi-info-circle text-danger me-2"></i> Service Overview</h4>
+        <p class="text-secondary leading-relaxed mb-4">{{ service.description }}</p>
+
+        <h5 class="fw-bold text-white mb-3"><i class="bi bi-check-circle-fill text-success me-2"></i> What's Included in this Package</h5>
+        <ul class="list-unstyled mb-0">
+          {% for feature in service.get_features_list %}
+            <li class="d-flex align-items-start gap-2 mb-2">
+              <i class="bi bi-shield-check text-success fs-5"></i>
+              <span class="text-white">{{ feature }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <!-- Booking CTA Card -->
+    <div class="col-lg-5">
+      <div class="p-4 rounded-4 shadow-sm sticky-top" style="top: 90px; background: var(--bg-secondary); border: 1px solid var(--border-color);">
+        <span class="badge-tag badge-3d mb-2">{{ service.category.name }}</span>
+        <h3 class="fw-bold text-white mb-2">{{ service.name }}</h3>
+
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <span class="badge bg-dark border border-secondary text-white"><i class="bi bi-clock me-1"></i> {{ service.duration }}</span>
+          <span class="badge bg-dark border border-secondary text-success"><i class="bi bi-door-open me-1"></i> Doorstep / Workshop</span>
+        </div>
+
+        <div class="p-3 rounded-3 mb-4" style="background: rgba(229, 9, 20, 0.08); border: 1px solid rgba(229, 9, 20, 0.25);">
+          <div class="text-muted small">All-Inclusive Package Price</div>
+          <div class="fw-bold fs-2 text-danger">{{ service.get_formatted_price }}</div>
+        </div>
+
+        <div class="d-flex flex-column gap-2 mb-4">
+          <a href="{% url 'services:book_service' slug=service.slug %}" class="btn btn-cd-primary py-3 fs-6 fw-bold text-center">
+            <i class="bi bi-calendar2-check-fill me-2"></i> BOOK APPOINTMENT SLOT
+          </a>
+          <button class="btn btn-cd-outline py-2 btn-add-to-cart-ajax" data-service-id="{{ service.id }}" data-item-type="service" data-quantity="1">
+            <i class="bi bi-cart-plus me-1"></i> Add Service to Cart
+          </button>
+        </div>
+
+        <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color);">
+          <div class="small fw-bold text-white mb-1"><i class="bi bi-patch-check text-cyan me-1"></i> Certified Specialist Guarantee</div>
+          <div class="text-muted" style="font-size:0.75rem;">100% Genuine chemicals, calibrated pneumatic tools, and satisfaction warranty.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications — CAR DELIGHTS{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 780px;">
+  <div class="mb-4 pb-3 border-bottom" style="border-color: var(--border-color);">
+    <h1 class="fw-bold mb-1">Notifications & Updates</h1>
+    <p class="text-secondary small mb-0">Stay informed about order statuses, service appointments, and special offers.</p>
+  </div>
+
+  {% if notifications %}
+    <div class="d-flex flex-column gap-3">
+      {% for notif in notifications %}
+        <div class="card-cd p-3">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <h6 class="fw-bold text-white mb-0">{{ notif.title }}</h6>
+            <span class="text-muted small">{{ notif.created_at|timesince }} ago</span>
+          </div>
+          <p class="text-secondary small mb-2">{{ notif.message }}</p>
+          {% if notif.link %}
+            <a href="{{ notif.link }}" class="btn btn-cd-outline btn-sm py-1 px-2" style="font-size: 0.75rem; width: fit-content;">View Details</a>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="p-5 text-center text-muted" style="background: var(--bg-secondary); border-radius: var(--radius-md);">
+      <i class="bi bi-bell-slash fs-1 d-block mb-3 text-secondary"></i>
+      <h4 class="text-white">No new notifications</h4>
+      <p class="text-muted">You're all caught up!</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Saved 3D Custom Builds — CAR DELIGHTS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom" style="border-color: var(--border-color);">
+    <div>
+      <h1 class="fw-bold mb-1">My Saved 3D Custom Builds</h1>
+      <p class="text-secondary small mb-0">Review, duplicate, edit in 3D studio, or order your custom configurations.</p>
+    </div>
+    <div class="d-flex gap-2 mt-3 mt-md-0">
+      <a href="{% url 'customization:customizer' %}" class="btn btn-cd-primary btn-sm">
+        <i class="bi bi-palette-fill me-1"></i> Create New 3D Build
+      </a>
+      <a href="{% url 'garage:my_garage' %}" class="btn btn-cd-outline btn-sm">
+        <i class="bi bi-car-front-fill me-1"></i> My Garage
+      </a>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    {% for build in builds %}
+      <div class="col-12 col-md-6 col-xl-4">
+        <div class="card-cd p-3">
+          {% if build.snapshot_image %}
+            <img src="{{ build.snapshot_image }}" alt="{{ build.name }}" class="rounded mb-3 border border-secondary" style="width: 100%; height: 170px; object-fit: cover;">
+          {% else %}
+            <img src="{{ build.vehicle.get_primary_image_url }}" alt="{{ build.name }}" class="rounded mb-3" style="width: 100%; height: 170px; object-fit: cover;">
+          {% endif %}
+
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <h5 class="fw-bold text-white mb-0">{{ build.name }}</h5>
+            <span class="badge bg-danger">{{ build.get_formatted_total }}</span>
+          </div>
+
+          <div class="text-secondary small mb-3">Base: <strong>{{ build.vehicle.full_name }}</strong></div>
+
+          <!-- Build Summary Specs -->
+          <ul class="list-unstyled small text-muted mb-3 border-top border-secondary pt-2">
+            {% if build.paint %}
+              <li><i class="bi bi-brush text-danger me-1"></i> Paint: <strong class="text-white">{{ build.paint.name }}</strong> ({{ build.paint.finish_type }})</li>
+            {% endif %}
+            {% if build.wheel %}
+              <li class="text-truncate"><i class="bi bi-disc text-warning me-1"></i> Wheels: <strong class="text-white">{{ build.wheel.name }}</strong></li>
+            {% endif %}
+            {% if build.spoiler %}
+              <li class="text-truncate"><i class="bi bi-airplane-engines text-info me-1"></i> Aero: <strong class="text-white">{{ build.spoiler.name }}</strong></li>
+            {% endif %}
+          </ul>
+
+          <div class="mt-auto d-flex flex-wrap gap-2 pt-2 border-top border-secondary">
+            <a href="{% url 'garage:add_build_to_cart' pk=build.id %}" class="btn btn-cd-primary btn-sm flex-grow-1">
+              <i class="bi bi-cart-plus"></i> Add to Cart
+            </a>
+            <a href="{% url 'customization:customizer' %}?vehicle={{ build.vehicle.id }}" class="btn btn-cd-outline btn-sm" title="Edit in 3D">
+              <i class="bi bi-pencil"></i>
+            </a>
+            <a href="{% url 'garage:duplicate_build' pk=build.id %}" class="btn btn-cd-outline btn-sm" title="Duplicate Build">
+              <i class="bi bi-copy"></i>
+            </a>
+            <a href="{% url 'garage:delete_build' pk=build.id %}" class="btn btn-cd-outline btn-sm text-danger" title="Delete Build" onclick="return confirm('Delete this custom build?');">
+              <i class="bi bi-trash"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12 text-center py-5">
+        <i class="bi bi-palette fs-1 text-muted mb-3 d-block"></i>
+        <h4 class="text-white">No custom builds saved yet</h4>
+        <p class="text-muted">Launch the 3D Customizer to tailor your vehicle with custom paints, forged alloys, and spoilers.</p>
+        <a href="{% url 'customization:customizer' %}" class="btn btn-cd-primary mt-2">Launch 3D Studio</a>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

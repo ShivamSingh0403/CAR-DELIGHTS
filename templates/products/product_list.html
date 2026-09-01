@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}350+ Spare Parts & Performance Upgrades — CAR DELIGHTS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom" style="border-color: var(--border-color);">
+    <div>
+      <h1 class="fw-bold mb-1">
+        {% if current_category %}{{ current_category.name }}{% else %}Spare Parts Marketplace{% endif %}
+      </h1>
+      <p class="text-secondary small mb-0">
+        {% if selected_vehicle %}
+          <span class="badge bg-success me-1"><i class="bi bi-check-circle"></i> Compatible Filter Active</span>
+          Showing certified parts compatible with <strong>{{ selected_vehicle.full_name }}</strong>
+        {% else %}
+          Showing <strong>{{ total_count }}</strong> verified automotive parts with guaranteed OEM fitment.
+        {% endif %}
+      </p>
+    </div>
+    <div class="d-flex gap-2 mt-3 mt-md-0">
+      <a href="{% url 'products:wheels_list' %}" class="btn btn-cd-outline btn-sm">
+        <i class="bi bi-disc me-1"></i> Alloy Wheels
+      </a>
+      <a href="{% url 'products:tyres_list' %}" class="btn btn-cd-outline btn-sm">
+        <i class="bi bi-circle me-1"></i> Performance Tyres
+      </a>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Filter Sidebar -->
+    <div class="col-lg-3">
+      <div class="p-3 rounded-3 shadow-sm" style="background: var(--bg-secondary); border: 1px solid var(--border-color);">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="fw-bold text-white mb-0"><i class="bi bi-funnel-fill text-danger me-1"></i> Filter Parts</h6>
+          <a href="{% url 'products:product_list' %}" class="text-danger small fw-bold text-decoration-none">Clear</a>
+        </div>
+
+        <form method="get" action="{% url 'products:product_list' %}">
+          <!-- Keyword -->
+          <div class="mb-3">
+            <label class="form-label small text-muted">Search Part / SKU</label>
+            <input type="text" name="q" class="form-control form-control-sm bg-dark text-white border-secondary" value="{{ current_filters.q|default:'' }}" placeholder="e.g. Brembo, Spoiler, Castrol">
+          </div>
+
+          <!-- Category -->
+          <div class="mb-3">
+            <label class="form-label small text-muted">Category</label>
+            <select name="category" class="form-select form-select-sm bg-dark text-white border-secondary">
+              <option value="">All Categories</option>
+              {% for cat in categories %}
+                <option value="{{ cat.slug }}" {% if current_filters.category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Brand -->
+          <div class="mb-3">
+            <label class="form-label small text-muted">Product Brand</label>
+            <select name="brand" class="form-select form-select-sm bg-dark text-white border-secondary">
+              <option value="">All Brands</option>
+              {% for b in brands %}
+                <option value="{{ b.slug }}" {% if current_filters.brand == b.slug %}selected{% endif %}>{{ b.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Vehicle Compatibility -->
+          {% if primary_garage_vehicle %}
+            <div class="p-2 rounded mb-3 bg-dark border border-secondary">
+              <div class="small fw-bold text-white mb-1"><i class="bi bi-car-front-fill text-danger me-1"></i> Garage Vehicle</div>
+              <div class="small text-muted mb-2 text-truncate">{{ primary_garage_vehicle.vehicle.full_name }}</div>
+              <a href="?vehicle={{ primary_garage_vehicle.vehicle.id }}" class="btn btn-cd-outline btn-sm w-100 py-1" style="font-size:0.75rem;">
+                Filter for My Car
+              </a>
+            </div>
+          {% endif %}
+
+          <button type="submit" class="btn btn-cd-primary w-100 py-2">Apply Filters</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="col-lg-9">
+      <!-- Sorting Bar -->
+      <div class="d-flex justify-content-between align-items-center mb-3 p-2 rounded" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color);">
+        <div class="small text-muted">Showing page {{ products.number }} of {{ products.paginator.num_pages }}</div>
+        <div class="d-flex align-items-center gap-2">
+          <label class="small text-muted mb-0">Sort:</label>
+          <select class="form-select form-select-sm bg-dark text-white border-secondary" style="width: auto;" onchange="location = this.value;">
+            <option value="?sort=featured" {% if current_filters.sort == 'featured' %}selected{% endif %}>Featured</option>
+            <option value="?sort=price_low" {% if current_filters.sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+            <option value="?sort=price_high" {% if current_filters.sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+            <option value="?sort=discount" {% if current_filters.sort == 'discount' %}selected{% endif %}>Max Discount</option>
+            <option value="?sort=rating" {% if current_filters.sort == 'rating' %}selected{% endif %}>Customer Rating</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        {% for product in products %}
+          <div class="col-12 col-sm-6 col-xl-4">
+            <div class="card-cd">
+              <div class="card-img-wrapper">
+                <img src="{{ product.get_primary_image_url }}" alt="{{ product.name }}" loading="lazy">
+                <div class="card-overlay-actions">
+                  <button class="action-btn-circle btn-wishlist-toggle" data-product-id="{{ product.id }}" title="Wishlist">
+                    <i class="bi bi-heart"></i>
+                  </button>
+                </div>
+                {% if product.discount_percentage > 0 %}
+                  <div class="position-absolute top-0 start-0 p-2">
+                    <span class="badge-tag badge-discount">-{{ product.discount_percentage }}% OFF</span>
+                  </div>
+                {% endif %}
+              </div>
+
+              <div class="card-body-cd">
+                <div class="text-muted small mb-1">{{ product.brand.name }} • {{ product.category.name }}</div>
+                <h5 class="fw-bold text-truncate mb-2" title="{{ product.name }}">
+                  <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+                </h5>
+                <div class="d-flex align-items-center gap-1 mb-2">
+                  <span class="badge bg-warning text-dark px-2 py-0" style="font-size:0.75rem;">★ {{ product.rating }}</span>
+                  <span class="text-muted small">({{ product.review_count }})</span>
+                  {% if product.is_universal %}
+                    <span class="badge bg-dark border border-secondary text-info ms-auto" style="font-size:0.7rem;">Universal Fit</span>
+                  {% endif %}
+                </div>
+
+                <div class="mt-auto d-flex justify-content-between align-items-center pt-2 border-top" style="border-color: var(--border-color);">
+                  <div>
+                    <span class="fw-bold text-white fs-5">{{ product.get_formatted_price }}</span>
+                    {% if product.mrp > product.price %}
+                      <span class="text-muted text-decoration-line-through small ms-1">{{ product.get_formatted_mrp }}</span>
+                    {% endif %}
+                  </div>
+                  <button class="action-btn-circle btn-add-to-cart-ajax" data-product-id="{{ product.id }}" data-item-type="product" data-quantity="1" title="Add to Cart">
+                    <i class="bi bi-cart-plus"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="col-12 text-center py-5">
+            <i class="bi bi-box-seam fs-1 text-muted mb-3 d-block"></i>
+            <h4 class="text-white">No products found matching your filters</h4>
+            <p class="text-muted">Try removing vehicle filters or search with different keywords.</p>
+            <a href="{% url 'products:product_list' %}" class="btn btn-cd-primary mt-2">Reset Filters</a>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- Pagination -->
+      {% if products.has_other_pages %}
+        <nav class="mt-5 d-flex justify-content-center">
+          <ul class="pagination">
+            {% if products.has_previous %}
+              <li class="page-item"><a class="page-link bg-dark text-white border-secondary" href="?page={{ products.previous_page_number }}">Previous</a></li>
+            {% endif %}
+            <li class="page-item active"><span class="page-link bg-danger border-danger text-white">{{ products.number }}</span></li>
+            {% if products.has_next %}
+              <li class="page-item"><a class="page-link bg-dark text-white border-secondary" href="?page={{ products.next_page_number }}">Next</a></li>
+            {% endif %}
+          </ul>
+        </nav>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

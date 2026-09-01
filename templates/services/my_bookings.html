@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}My Service Bookings — CAR DELIGHTS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom" style="border-color: var(--border-color);">
+    <div>
+      <h1 class="fw-bold mb-1">My Service Appointments</h1>
+      <p class="text-secondary small mb-0">Track all your car care and workshop maintenance schedules.</p>
+    </div>
+    <a href="{% url 'services:service_list' %}" class="btn btn-cd-primary btn-sm">
+      <i class="bi bi-plus-circle me-1"></i> Book New Service
+    </a>
+  </div>
+
+  {% if bookings %}
+    <div class="d-flex flex-column gap-4">
+      {% for b in bookings %}
+        <div class="card-cd p-4">
+          <div class="d-flex flex-wrap justify-content-between align-items-center pb-3 border-bottom border-secondary mb-3">
+            <div>
+              <span class="text-muted small">Booking ID:</span>
+              <strong class="text-cyan ms-1">{{ b.booking_id }}</strong>
+              <span class="text-muted small ms-3">Date: <strong class="text-white">{{ b.booking_date|date:"D, d M Y" }}</strong> ({{ b.time_slot }})</span>
+            </div>
+            <div class="mt-2 mt-sm-0">
+              <span class="badge bg-success fs-6 px-3 py-1">{{ b.get_status_display }}</span>
+            </div>
+          </div>
+
+          <div class="row g-3 align-items-center">
+            <div class="col-md-7">
+              <h5 class="fw-bold text-white mb-1">{{ b.service.name }}</h5>
+              <div class="text-muted small mb-2">Vehicle: <strong class="text-white">{{ b.vehicle_custom_name }}</strong></div>
+              <div class="small text-secondary"><i class="bi bi-geo-alt me-1"></i> Address: {{ b.address }}, {{ b.city }}</div>
+            </div>
+            <div class="col-md-5">
+              <div class="p-3 rounded-3 bg-dark border border-secondary">
+                <div class="small fw-bold text-white mb-1"><i class="bi bi-person-badge-fill text-danger me-1"></i> Assigned Specialist</div>
+                <div class="small text-white">{{ b.technician_name }}</div>
+                <div class="small text-muted">{{ b.technician_phone }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="p-5 text-center text-muted" style="background: var(--bg-secondary); border-radius: var(--radius-md);">
+      <i class="bi bi-calendar-x fs-1 d-block mb-3 text-secondary"></i>
+      <h4 class="text-white">No service appointments scheduled</h4>
+      <p class="text-muted">Book certified doorstep car washing, detailing, ceramic coating, or mechanical maintenance.</p>
+      <a href="{% url 'services:service_list' %}" class="btn btn-cd-primary mt-2">Browse All Services</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

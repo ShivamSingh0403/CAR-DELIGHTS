@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results for "{{ query }}" — CAR DELIGHTS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="mb-4 pb-3 border-bottom" style="border-color: var(--border-color);">
+    <h1 class="fw-bold mb-1">Search Results for "{{ query }}"</h1>
+    <p class="text-secondary small mb-0">Found <strong>{{ total_results }}</strong> matches across vehicles, spare parts, and services.</p>
+  </div>
+
+  <!-- Vehicles Results -->
+  {% if vehicles %}
+    <div class="mb-5">
+      <h4 class="fw-bold text-white mb-3"><i class="bi bi-car-front-fill text-danger me-2"></i> Matching Vehicles</h4>
+      <div class="row g-4">
+        {% for v in vehicles %}
+          <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card-cd p-2">
+              <img src="{{ v.get_primary_image_url }}" alt="{{ v.full_name }}" class="rounded mb-2" style="width:100%; height:130px; object-fit:cover;">
+              <h6 class="fw-bold text-truncate mb-1"><a href="{{ v.get_absolute_url }}">{{ v.full_name }}</a></h6>
+              <div class="text-danger fw-bold small">{{ v.get_formatted_price }}</div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Products Results -->
+  {% if products %}
+    <div class="mb-5">
+      <h4 class="fw-bold text-white mb-3"><i class="bi bi-box-seam text-cyan me-2"></i> Matching Spare Parts & Upgrades</h4>
+      <div class="row g-4">
+        {% for p in products %}
+          <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card-cd p-2">
+              <img src="{{ p.get_primary_image_url }}" alt="{{ p.name }}" class="rounded mb-2" style="width:100%; height:130px; object-fit:cover;">
+              <h6 class="fw-bold text-truncate mb-1"><a href="{{ p.get_absolute_url }}">{{ p.name }}</a></h6>
+              <div class="d-flex justify-content-between align-items-center mt-2">
+                <span class="fw-bold text-white">{{ p.get_formatted_price }}</span>
+                <button class="btn btn-cd-primary btn-sm py-0 px-2 btn-add-to-cart-ajax" data-product-id="{{ p.id }}">
+                  <i class="bi bi-cart-plus"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Services Results -->
+  {% if services %}
+    <div class="mb-5">
+      <h4 class="fw-bold text-white mb-3"><i class="bi bi-wrench text-warning me-2"></i> Matching Car Services</h4>
+      <div class="row g-4">
+        {% for s in services %}
+          <div class="col-12 col-md-4">
+            <div class="card-cd p-3">
+              <h5 class="fw-bold text-white mb-1"><a href="{% url 'services:service_detail' slug=s.slug %}">{{ s.name }}</a></h5>
+              <div class="text-muted small mb-2">{{ s.duration }}</div>
+              <div class="fw-bold text-danger">{{ s.get_formatted_price }}</div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  {% if total_results == 0 %}
+    <div class="p-5 text-center text-muted" style="background: var(--bg-secondary); border-radius: var(--radius-md);">
+      <i class="bi bi-search fs-1 d-block mb-3 text-secondary"></i>
+      <h4 class="text-white">No results found for "{{ query }}"</h4>
+      <p class="text-muted">Try searching with a broader keyword (e.g. "Brake", "Nexon", "Oil", "Tyre").</p>
+      <a href="{% url 'products:product_list' %}" class="btn btn-cd-primary mt-2">Explore All Products</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

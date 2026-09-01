@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Shopping Cart — CAR DELIGHTS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom" style="border-color: var(--border-color);">
+    <div>
+      <h1 class="fw-bold mb-1">Your Shopping Cart</h1>
+      <p class="text-secondary small mb-0">Items in your cart are reserved for secure checkout.</p>
+    </div>
+    {% if cart.items.exists %}
+      <a href="{% url 'cart:clear_cart' %}" class="btn btn-cd-outline btn-sm text-danger" onclick="return confirm('Clear entire cart?');">
+        <i class="bi bi-trash me-1"></i> Clear Cart
+      </a>
+    {% endif %}
+  </div>
+
+  {% if cart.items.exists %}
+    <div class="row g-4">
+      <!-- Cart Items List -->
+      <div class="col-lg-8">
+        <div class="d-flex flex-column gap-3">
+          {% for item in cart.items.all %}
+            <div class="card-cd p-3 flex-row align-items-center gap-3" id="cart-item-row-{{ item.id }}">
+              <img src="{{ item.get_image_url }}" alt="{{ item.get_name }}" class="rounded border border-secondary" style="width: 90px; height: 75px; object-fit: cover;">
+              
+              <div class="flex-grow-1 overflow-hidden">
+                <div class="badge bg-secondary mb-1 small">{{ item.get_item_type_display }}</div>
+                <h6 class="fw-bold text-white text-truncate mb-1">{{ item.get_name }}</h6>
+                <div class="text-danger fw-bold fs-6">{{ item.get_formatted_price }}</div>
+              </div>
+
+              <!-- Quantity Controls -->
+              <div class="d-flex align-items-center gap-2">
+                {% if item.item_type == 'product' %}
+                  <button class="action-btn-circle btn-update-qty" data-item-id="{{ item.id }}" data-action="decrease" style="width:28px; height:28px;">-</button>
+                  <span class="fw-bold text-white px-2" id="qty-val-{{ item.id }}">{{ item.quantity }}</span>
+                  <button class="action-btn-circle btn-update-qty" data-item-id="{{ item.id }}" data-action="increase" style="width:28px; height:28px;">+</button>
+                {% else %}
+                  <span class="text-muted small">Qty: {{ item.quantity }}</span>
+                {% endif %}
+              </div>
+
+              <!-- Item Total & Delete -->
+              <div class="text-end" style="min-width: 100px;">
+                <div class="fw-bold text-white fs-6" id="item-total-{{ item.id }}">{{ item.get_formatted_total }}</div>
+                <button class="btn btn-link text-danger p-0 small text-decoration-none btn-remove-item" data-item-id="{{ item.id }}">
+                  <i class="bi bi-x-circle"></i> Remove
+                </button>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Order Summary & Checkout -->
+      <div class="col-lg-4">
+        <div class="p-4 rounded-4 shadow-sm" style="background: var(--bg-secondary); border: 1px solid var(--border-color);">
+          <h5 class="fw-bold text-white mb-3">Order Summary</h5>
+
+          <!-- Coupon Code Form -->
+          <form method="post" action="{% url 'cart:apply_coupon' %}" class="mb-3">
+            {% csrf_token %}
+            <label class="form-label small text-muted">Have a Coupon / Promo Code?</label>
+            <div class="input-group">
+              <input type="text" name="coupon_code" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="e.g. FESTIVE10, TATA20" value="{{ cart.coupon_code|default:'' }}">
+              <button class="btn btn-cd-primary btn-sm" type="submit">Apply</button>
+            </div>
+          </form>
+
+          <ul class="list-unstyled small mb-4 border-top border-bottom border-secondary py-3">
+            <li class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Subtotal MRP</span>
+              <span class="fw-bold text-white">{{ cart.get_total_mrp|floatformat:0 }}</span>
+            </li>
+            {% if cart.get_savings > 0 %}
+              <li class="d-flex justify-content-between mb-2 text-success">
+                <span>Product Discounts</span>
+                <span>-₹{{ cart.get_savings|floatformat:0 }}</span>
+              </li>
+            {% endif %}
+            {% if cart.discount_amount > 0 %}
+              <li class="d-flex justify-content-between mb-2 text-warning">
+                <span>Coupon ({{ cart.coupon_code }})</span>
+                <span>-₹{{ cart.discount_amount|floatformat:0 }}</span>
+              </li>
+            {% endif %}
+            <li class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Express Shipping</span>
+              <span class="text-success fw-bold">FREE</span>
+            </li>
+            <li class="d-flex justify-content-between pt-2 border-top border-secondary fs-5 fw-bold">
+              <span class="text-white">Total Amount</span>
+              <span class="text-danger" id="cart-total-display">{{ cart.get_formatted_total }}</span>
+            </li>
+          </ul>
+
+          <a href="{% url 'orders:checkout' %}" class="btn btn-cd-primary w-100 py-3 fs-6 fw-bold mb-2 text-center">
+            PROCEED TO SECURE CHECKOUT <i class="bi bi-arrow-right ms-1"></i>
+          </a>
+          <div class="text-center text-muted small">
+            <i class="bi bi-lock-fill text-success me-1"></i> 256-Bit SSL Encrypted Checkout
+          </div>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="p-5 text-center text-muted" style="background: var(--bg-secondary); border-radius: var(--radius-md);">
+      <i class="bi bi-cart-x fs-1 d-block mb-3 text-secondary"></i>
+      <h4 class="text-white">Your cart is currently empty</h4>
+      <p class="text-muted">Browse our performance spare parts catalog or configure your dream vehicle in 3D.</p>
+      <div class="d-flex justify-content-center gap-3 mt-3">
+        <a href="{% url 'products:product_list' %}" class="btn btn-cd-primary">Shop Spare Parts</a>
+        <a href="{% url 'customization:customizer' %}" class="btn btn-cd-outline">3D Customizer</a>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Quantity Update
+  document.querySelectorAll('.btn-update-qty').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const itemId = btn.dataset.itemId;
+      const action = btn.dataset.action;
+
+      fetch('/cart/api/update/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCsrfToken()
+        },
+        body: JSON.stringify({ item_id: itemId, action: action })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+          if (data.item_qty <= 0) {
+            document.getElementById(`cart-item-row-${itemId}`)?.remove();
+          } else {
+            const qElem = document.getElementById(`qty-val-${itemId}`);
+            const tElem = document.getElementById(`item-total-${itemId}`);
+            if (qElem) qElem.textContent = data.item_qty;
+            if (tElem) tElem.textContent = data.item_total;
+          }
+          const cartTotalElem = document.getElementById('cart-total-display');
+          if (cartTotalElem) cartTotalElem.textContent = data.cart_total;
+          updateCartBadge(data.cart_count);
+        }
+      });
+    });
+  });
+
+  // Remove Item
+  document.querySelectorAll('.btn-remove-item').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const itemId = btn.dataset.itemId;
+
+      fetch('/cart/api/remove/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCsrfToken()
+        },
+        body: JSON.stringify({ item_id: itemId })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+          document.getElementById(`cart-item-row-${itemId}`)?.remove();
+          const cartTotalElem = document.getElementById('cart-total-display');
+          if (cartTotalElem) cartTotalElem.textContent = data.cart_total;
+          updateCartBadge(data.cart_count);
+          if (data.cart_count === 0) {
+            window.location.reload();
+          }
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

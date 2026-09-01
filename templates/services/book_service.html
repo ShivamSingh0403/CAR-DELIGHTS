@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Book Appointment for {{ service.name }} — CAR DELIGHTS{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 780px;">
+  <div class="mb-4 text-center">
+    <h1 class="fw-bold mb-1">Book Service Appointment</h1>
+    <p class="text-secondary small">Schedule your doorstep or workshop service appointment with certified Car Delights specialists.</p>
+  </div>
+
+  <div class="card-cd p-4 mb-4">
+    <div class="d-flex align-items-center gap-3 pb-3 border-bottom border-secondary mb-3">
+      <img src="{{ service.get_image_url }}" alt="{{ service.name }}" width="70" height="55" class="rounded" style="object-fit:cover;">
+      <div class="flex-grow-1">
+        <h5 class="fw-bold text-white mb-0">{{ service.name }}</h5>
+        <div class="text-muted small">Duration: {{ service.duration }}</div>
+      </div>
+      <div class="fw-bold text-danger fs-4">{{ service.get_formatted_price }}</div>
+    </div>
+
+    <form method="post" action="{% url 'services:book_service' slug=service.slug %}">
+      {% csrf_token %}
+      <div class="row g-3">
+        <!-- Vehicle Selection -->
+        <div class="col-12">
+          <label class="form-label small text-muted">Select Your Vehicle</label>
+          <select name="vehicle_id" class="form-select bg-dark text-white border-secondary">
+            {% if user_vehicles %}
+              <optgroup label="Your Garage Vehicles">
+                {% for uv in user_vehicles %}
+                  <option value="{{ uv.vehicle.id }}" {% if uv.is_primary %}selected{% endif %}>{{ uv.display_title }}</option>
+                {% endfor %}
+              </optgroup>
+            {% endif %}
+            <optgroup label="All Car Delights Catalog Models">
+              {% for v in all_vehicles %}
+                <option value="{{ v.id }}">{{ v.full_name }}</option>
+              {% endfor %}
+            </optgroup>
+          </select>
+        </div>
+
+        <!-- Appointment Date & Time -->
+        <div class="col-md-6">
+          <label class="form-label small text-muted">Preferred Date</label>
+          <input type="date" name="booking_date" class="form-control bg-dark text-white border-secondary" min="{{ min_date }}" max="{{ max_date }}" value="{{ min_date }}" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small text-muted">Time Slot</label>
+          <select name="time_slot" class="form-select bg-dark text-white border-secondary" required>
+            <option value="09:00 AM - 11:00 AM">09:00 AM - 11:00 AM (Morning Slot)</option>
+            <option value="11:30 AM - 01:30 PM">11:30 AM - 01:30 PM</option>
+            <option value="02:30 PM - 04:30 PM" selected>02:30 PM - 04:30 PM (Afternoon Slot)</option>
+            <option value="05:00 PM - 07:00 PM">05:00 PM - 07:00 PM (Evening Slot)</option>
+          </select>
+        </div>
+
+        <!-- Location Address -->
+        <div class="col-12">
+          <label class="form-label small text-muted">Service Address / Location</label>
+          <input type="text" name="address" class="form-control bg-dark text-white border-secondary" placeholder="Building, Street Address for doorstep or nearest center" value="{{ user.address_line1|default:'' }}" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small text-muted">City</label>
+          <input type="text" name="city" class="form-control bg-dark text-white border-secondary" value="{{ user.city|default:'Mumbai' }}" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small text-muted">Contact Mobile</label>
+          <input type="text" name="phone" class="form-control bg-dark text-white border-secondary" value="{{ user.phone|default:'+91 98765 43210' }}" required>
+        </div>
+        <div class="col-12">
+          <label class="form-label small text-muted">Special Instructions / Specific Car Issues (Optional)</label>
+          <textarea name="notes" class="form-control bg-dark text-white border-secondary" rows="2" placeholder="e.g. Please check right front brake squeak"></textarea>
+        </div>
+      </div>
+
+      <div class="mt-4 pt-3 border-top border-secondary d-flex justify-content-between align-items-center">
+        <a href="{% url 'services:service_detail' slug=service.slug %}" class="btn btn-cd-outline">Cancel</a>
+        <button type="submit" class="btn btn-cd-primary px-4 py-2 fw-bold">
+          Confirm Service Booking ({{ service.get_formatted_price }})
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}My Garage — CAR DELIGHTS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom" style="border-color: var(--border-color);">
+    <div>
+      <h1 class="fw-bold mb-1">My Virtual Garage</h1>
+      <p class="text-secondary small mb-0">Manage your owned vehicles and get automatically filtered compatible spare parts and upgrades.</p>
+    </div>
+    <div class="d-flex gap-2 mt-3 mt-md-0">
+      <button class="btn btn-cd-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addCarModal">
+        <i class="bi bi-plus-circle me-1"></i> Add Vehicle to Garage
+      </button>
+      <a href="{% url 'garage:saved_builds' %}" class="btn btn-cd-outline btn-sm">
+        <i class="bi bi-palette-fill me-1"></i> View Saved Builds
+      </a>
+    </div>
+  </div>
+
+  <!-- Garage Vehicles List -->
+  <div class="row g-4 mb-5">
+    {% for uv in user_vehicles %}
+      <div class="col-12 col-md-6 col-xl-4">
+        <div class="card-cd p-3 position-relative {% if uv.is_primary %}border-danger{% endif %}">
+          {% if uv.is_primary %}
+            <div class="position-absolute top-0 end-0 m-3">
+              <span class="badge bg-danger px-2 py-1"><i class="bi bi-star-fill me-1"></i> PRIMARY CAR</span>
+            </div>
+          {% endif %}
+
+          <img src="{{ uv.vehicle.get_primary_image_url }}" alt="{{ uv.vehicle.full_name }}" class="rounded mb-3" style="width: 100%; height: 160px; object-fit: cover;">
+          <h5 class="fw-bold text-white mb-1">{{ uv.display_title }}</h5>
+          <div class="text-secondary small mb-2">{{ uv.vehicle.variant }} • {{ uv.vehicle.fuel_type }}</div>
+          <div class="d-flex gap-2 text-muted small mb-3">
+            <span>Reg: {{ uv.registration_number|default:'Not Registered' }}</span>
+            <span>•</span>
+            <span>{{ uv.purchase_year }}</span>
+          </div>
+
+          <div class="mt-auto d-flex flex-wrap gap-2 pt-2 border-top border-secondary">
+            <a href="{% url 'customization:customizer' %}?vehicle={{ uv.vehicle.id }}" class="btn btn-cd-primary btn-sm flex-grow-1">
+              <i class="bi bi-palette"></i> 3D Customizer
+            </a>
+            <a href="{% url 'products:product_list' %}?vehicle={{ uv.vehicle.id }}" class="btn btn-cd-outline btn-sm">
+              Parts
+            </a>
+            {% if not uv.is_primary %}
+              <a href="{% url 'garage:set_primary' pk=uv.id %}" class="btn btn-cd-outline btn-sm" title="Set as Primary">
+                <i class="bi bi-star"></i>
+              </a>
+            {% endif %}
+            <a href="{% url 'garage:delete_vehicle' pk=uv.id %}" class="btn btn-cd-outline btn-sm text-danger" title="Remove from Garage" onclick="return confirm('Remove vehicle from your garage?');">
+              <i class="bi bi-trash"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12 text-center py-5">
+        <i class="bi bi-car-front fs-1 text-muted mb-3 d-block"></i>
+        <h4 class="text-white">Your garage is currently empty</h4>
+        <p class="text-muted">Add your car to automatically filter compatible parts and access instant 3D customization.</p>
+        <button class="btn btn-cd-primary mt-2" data-bs-toggle="modal" data-bs-target="#addCarModal">
+          Add Your First Car
+        </button>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Auto-Compatible Products for Primary Car -->
+  {% if primary_vehicle and compatible_products %}
+    <div class="mb-5">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold text-white mb-0">
+          <i class="bi bi-shield-check text-success me-2"></i> Verified Compatible Parts for Your {{ primary_vehicle.vehicle.model }}
+        </h4>
+        <a href="{% url 'products:product_list' %}?vehicle={{ primary_vehicle.vehicle.id }}" class="btn btn-cd-outline btn-sm">View All Compatible</a>
+      </div>
+
+      <div class="row g-3">
+        {% for prod in compatible_products %}
+          <div class="col-6 col-md-3">
+            <div class="card-cd p-2">
+              <img src="{{ prod.get_primary_image_url }}" alt="{{ prod.name }}" class="rounded mb-2" style="width:100%; height:120px; object-fit:cover;">
+              <h6 class="fw-bold text-truncate mb-1"><a href="{{ prod.get_absolute_url }}">{{ prod.name }}</a></h6>
+              <div class="d-flex justify-content-between align-items-center mt-2">
+                <span class="text-white fw-bold">{{ prod.get_formatted_price }}</span>
+                <button class="btn btn-cd-primary btn-sm py-0 px-2 btn-add-to-cart-ajax" data-product-id="{{ prod.id }}">
+                  <i class="bi bi-cart-plus"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Modal: Add Vehicle -->
+<div class="modal fade" id="addCarModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark text-white border-secondary">
+      <div class="modal-header border-secondary">
+        <h5 class="modal-title fw-bold">Add Car to My Garage</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" action="{% url 'garage:add_vehicle' %}">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label small text-muted">Select Vehicle Model</label>
+            <select name="vehicle_id" class="form-select bg-dark text-white border-secondary" required>
+              <option value="">Choose your car...</option>
+              {% for v in all_vehicles %}
+                <option value="{{ v.id }}">{{ v.full_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small text-muted">Nickname (Optional)</label>
+            <input type="text" name="nickname" class="form-control bg-dark text-white border-secondary" placeholder="e.g. Midnight Beast">
+          </div>
+          <div class="mb-3">
+            <label class="form-label small text-muted">Registration Number (Optional)</label>
+            <input type="text" name="registration_number" class="form-control bg-dark text-white border-secondary" placeholder="e.g. MH 02 CD 1234">
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="form-label small text-muted">Purchase Year</label>
+              <input type="number" name="purchase_year" value="2024" class="form-control bg-dark text-white border-secondary">
+            </div>
+            <div class="col-6">
+              <label class="form-label small text-muted">Mileage (km)</label>
+              <input type="number" name="current_mileage" value="12000" class="form-control bg-dark text-white border-secondary">
+            </div>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="is_primary" id="modal-is-primary" checked>
+            <label class="form-check-label small" for="modal-is-primary">Set as Primary Garage Car</label>
+          </div>
+        </div>
+        <div class="modal-footer border-secondary">
+          <button type="button" class="btn btn-cd-outline" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-cd-primary">Save to Garage</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

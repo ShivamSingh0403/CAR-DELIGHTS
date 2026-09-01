@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}My Wishlist — CAR DELIGHTS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom" style="border-color: var(--border-color);">
+    <div>
+      <h1 class="fw-bold mb-1">My Saved Wishlist</h1>
+      <p class="text-secondary small mb-0">Items you've saved for future upgrades and customization.</p>
+    </div>
+    <a href="{% url 'products:product_list' %}" class="btn btn-cd-outline btn-sm">
+      <i class="bi bi-shop me-1"></i> Continue Shopping
+    </a>
+  </div>
+
+  {% if wishlist_items %}
+    <div class="row g-4">
+      {% for item in wishlist_items %}
+        {% if item.product %}
+          <div class="col-12 col-sm-6 col-lg-3" id="wishlist-item-{{ item.id }}">
+            <div class="card-cd p-3">
+              <img src="{{ item.product.get_primary_image_url }}" alt="{{ item.product.name }}" class="rounded mb-2" style="width:100%; height:140px; object-fit:cover;">
+              <h6 class="fw-bold text-truncate mb-1"><a href="{{ item.product.get_absolute_url }}">{{ item.product.name }}</a></h6>
+              <div class="text-white fw-bold mb-3">{{ item.product.get_formatted_price }}</div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-cd-primary btn-sm flex-grow-1 btn-add-to-cart-ajax" data-product-id="{{ item.product.id }}" data-item-type="product">
+                  <i class="bi bi-cart-plus"></i> Move to Cart
+                </button>
+                <button class="btn btn-cd-outline btn-sm text-danger btn-wishlist-toggle" data-product-id="{{ item.product.id }}" title="Remove">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        {% elif item.vehicle %}
+          <div class="col-12 col-sm-6 col-lg-3" id="wishlist-item-{{ item.id }}">
+            <div class="card-cd p-3">
+              <img src="{{ item.vehicle.get_primary_image_url }}" alt="{{ item.vehicle.full_name }}" class="rounded mb-2" style="width:100%; height:140px; object-fit:cover;">
+              <h6 class="fw-bold text-truncate mb-1"><a href="{{ item.vehicle.get_absolute_url }}">{{ item.vehicle.full_name }}</a></h6>
+              <div class="text-danger fw-bold mb-3">{{ item.vehicle.get_formatted_price }}</div>
+              <div class="d-flex gap-2">
+                <a href="{% url 'customization:customizer' %}?vehicle={{ item.vehicle.id }}" class="btn btn-cd-primary btn-sm flex-grow-1">
+                  <i class="bi bi-palette"></i> 3D Customizer
+                </a>
+                <button class="btn btn-cd-outline btn-sm text-danger btn-wishlist-toggle" data-vehicle-id="{{ item.vehicle.id }}" title="Remove">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="p-5 text-center text-muted" style="background: var(--bg-secondary); border-radius: var(--radius-md);">
+      <i class="bi bi-heartbreak fs-1 d-block mb-3 text-secondary"></i>
+      <h4 class="text-white">Your wishlist is currently empty</h4>
+      <p class="text-muted">Click the heart icon on any vehicle or spare part to save it here.</p>
+      <a href="{% url 'products:product_list' %}" class="btn btn-cd-primary mt-2">Explore Spare Parts</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

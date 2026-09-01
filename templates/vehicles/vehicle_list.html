@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}250+ Vehicles Marketplace — CAR DELIGHTS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Page Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom" style="border-color: var(--border-color);">
+    <div>
+      <h1 class="fw-bold mb-1">Automotive Marketplace</h1>
+      <p class="text-secondary small mb-0">
+        Showing <strong>{{ total_count }}</strong> vehicle models across all major brands in India
+        <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 px-2 py-1 ms-2">
+          <i class="bi bi-camera-fill me-1"></i> {{ photographed_count }} / {{ total_vehicles_count }} Real Photographs Cleared
+        </span>
+      </p>
+    </div>
+    <div class="d-flex gap-2 mt-3 mt-md-0">
+      <a href="{% url 'vehicles:vehicle_compare' %}" class="btn btn-cd-outline btn-sm">
+        <i class="bi bi-arrow-left-right me-1"></i> Compare Vehicles
+      </a>
+      <a href="{% url 'customization:customizer' %}" class="btn btn-cd-primary btn-sm">
+        <i class="bi bi-box me-1"></i> 3D Customizer Studio
+      </a>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Filter Sidebar -->
+    <div class="col-lg-3">
+      <div class="p-3 rounded-3 shadow-sm" style="background: var(--bg-secondary); border: 1px solid var(--border-color);">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6 class="fw-bold text-white mb-0"><i class="bi bi-funnel-fill text-danger me-1"></i> Filters</h6>
+          <a href="{% url 'vehicles:vehicle_list' %}" class="text-danger small fw-bold text-decoration-none">Clear All</a>
+        </div>
+
+        <form method="get" action="{% url 'vehicles:vehicle_list' %}">
+          <!-- Keyword Search -->
+          <div class="mb-3">
+            <label class="form-label small text-muted">Search Model / Keyword</label>
+            <input type="text" name="q" class="form-control form-control-sm bg-dark text-white border-secondary" value="{{ current_filters.q|default:'' }}" placeholder="e.g. Creta, Thar, Nexon">
+          </div>
+
+          <!-- Brand -->
+          <div class="mb-3">
+            <label class="form-label small text-muted">Brand</label>
+            <select name="brand" class="form-select form-select-sm bg-dark text-white border-secondary">
+              <option value="">All Brands</option>
+              {% for b in brands %}
+                <option value="{{ b.slug }}" {% if current_filters.brand == b.slug %}selected{% endif %}>{{ b.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Body Type -->
+          <div class="mb-3">
+            <label class="form-label small text-muted">Body Type</label>
+            <select name="body_type" class="form-select form-select-sm bg-dark text-white border-secondary">
+              <option value="">All Body Types</option>
+              {% for bt in body_types %}
+                <option value="{{ bt }}" {% if current_filters.body_type == bt %}selected{% endif %}>{{ bt }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Fuel Type -->
+          <div class="mb-3">
+            <label class="form-label small text-muted">Fuel Type</label>
+            <select name="fuel_type" class="form-select form-select-sm bg-dark text-white border-secondary">
+              <option value="">All Fuel Types</option>
+              {% for ft in fuel_types %}
+                <option value="{{ ft }}" {% if current_filters.fuel_type == ft %}selected{% endif %}>{{ ft }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Transmission -->
+          <div class="mb-3">
+            <label class="form-label small text-muted">Transmission</label>
+            <select name="transmission" class="form-select form-select-sm bg-dark text-white border-secondary">
+              <option value="">All Transmissions</option>
+              {% for tt in transmissions %}
+                <option value="{{ tt }}" {% if current_filters.transmission == tt %}selected{% endif %}>{{ tt }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- 3D Available Filter -->
+          <div class="form-check mb-4">
+            <input class="form-check-input" type="checkbox" name="3d" value="1" id="filter-3d" {% if current_filters.3d == '1' %}checked{% endif %}>
+            <label class="form-check-label small text-cyan fw-bold" for="filter-3d">
+              <i class="bi bi-box me-1"></i> 3D Customizer Enabled Only
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-cd-primary w-100 py-2">Apply Filters</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Vehicles Grid -->
+    <div class="col-lg-9">
+      <!-- Sorting Bar -->
+      <div class="d-flex justify-content-between align-items-center mb-3 p-2 rounded" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color);">
+        <div class="small text-muted">Showing page {{ vehicles.number }} of {{ vehicles.paginator.num_pages }}</div>
+        <div class="d-flex align-items-center gap-2">
+          <label class="small text-muted mb-0">Sort By:</label>
+          <select class="form-select form-select-sm bg-dark text-white border-secondary" style="width: auto;" onchange="location = this.value;">
+            <option value="?sort=featured" {% if current_filters.sort == 'featured' %}selected{% endif %}>Featured</option>
+            <option value="?sort=price_low" {% if current_filters.sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+            <option value="?sort=price_high" {% if current_filters.sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+            <option value="?sort=name_asc" {% if current_filters.sort == 'name_asc' %}selected{% endif %}>Name (A-Z)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        {% for vehicle in vehicles %}
+          <div class="col-12 col-sm-6 col-xl-4">
+            <div class="card-cd h-100 d-flex flex-column">
+              <div class="card-img-wrapper" style="padding-top: 60%; background: #0B0F19;">
+                <img src="{{ vehicle.get_primary_image_url }}" alt="{{ vehicle.full_name }}" loading="lazy" style="object-fit: cover; width: 100%; height: 100%;">
+                <div class="position-absolute top-0 start-0 p-2" style="z-index: 2;">
+                  <span class="badge bg-success bg-opacity-90 text-white shadow-sm" style="font-size: 0.72rem; font-weight: 700; letter-spacing: 0.5px;">
+                    <i class="bi bi-camera-fill me-1"></i> REAL PHOTO
+                  </span>
+                </div>
+                <div class="card-overlay-actions" style="z-index: 2;">
+                  <button class="action-btn-circle btn-wishlist-toggle" data-vehicle-id="{{ vehicle.id }}" title="Wishlist">
+                    <i class="bi bi-heart"></i>
+                  </button>
+                </div>
+                <div class="position-absolute bottom-0 start-0 p-2" style="z-index: 2;">
+                  {% if vehicle.is_3d_available and vehicle.model_3d_path %}
+                    <span class="badge-tag badge-3d">
+                      <i class="bi bi-box me-1"></i> 3D Studio Ready
+                    </span>
+                  {% else %}
+                    <span class="badge-tag bg-dark text-white border border-secondary">
+                      <i class="bi bi-car-front me-1"></i> {{ vehicle.body_type }}
+                    </span>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div class="card-body-cd flex-grow-1 d-flex flex-column">
+                <div class="text-muted small mb-1">{{ vehicle.brand.name }} • {{ vehicle.fuel_type }}</div>
+                <h5 class="fw-bold text-truncate mb-1" title="{{ vehicle.full_name }}">
+                  <a href="{{ vehicle.get_absolute_url }}" class="text-white text-decoration-none">{{ vehicle.model }}</a>
+                </h5>
+                <div class="text-secondary small text-truncate mb-2">{{ vehicle.variant }}</div>
+
+                <div class="d-flex gap-2 small text-muted mb-3">
+                  <span><i class="bi bi-gear me-1"></i>{{ vehicle.transmission }}</span>
+                  <span>•</span>
+                  <span><i class="bi bi-lightning-charge me-1"></i>{{ vehicle.power }}</span>
+                </div>
+
+                <div class="mt-auto d-flex justify-content-between align-items-center pt-2 border-top" style="border-color: var(--border-color);">
+                  <div>
+                    <div class="text-muted" style="font-size: 0.7rem;">Ex-Showroom</div>
+                    <div class="fw-bold text-danger fs-5">{{ vehicle.get_formatted_price }}</div>
+                  </div>
+                  <div class="d-flex gap-1">
+                    <a href="{{ vehicle.get_absolute_url }}" class="btn btn-cd-outline btn-sm py-1 px-2" title="View Details">
+                      Details
+                    </a>
+                    <a href="{% url 'customization:customizer' %}?vehicle={{ vehicle.id }}" class="btn btn-cd-primary btn-sm py-1 px-2" title="Customize">
+                      <i class="bi bi-palette"></i> 3D
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="col-12 text-center py-5">
+            <i class="bi bi-search fs-1 text-muted mb-3 d-block"></i>
+            <h4 class="text-white">No vehicles found matching your criteria</h4>
+            <p class="text-muted">Try resetting your filters or search keywords.</p>
+            <a href="{% url 'vehicles:vehicle_list' %}" class="btn btn-cd-primary mt-2">Reset Filters</a>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- Pagination -->
+      {% if vehicles.has_other_pages %}
+        <nav class="mt-5 d-flex justify-content-center">
+          <ul class="pagination">
+            {% if vehicles.has_previous %}
+              <li class="page-item"><a class="page-link bg-dark text-white border-secondary" href="?page={{ vehicles.previous_page_number }}">Previous</a></li>
+            {% endif %}
+            <li class="page-item active"><span class="page-link bg-danger border-danger text-white">{{ vehicles.number }}</span></li>
+            {% if vehicles.has_next %}
+              <li class="page-item"><a class="page-link bg-dark text-white border-secondary" href="?page={{ vehicles.next_page_number }}">Next</a></li>
+            {% endif %}
+          </ul>
+        </nav>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Support — CAR DELIGHTS{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 800px;">
+  <div class="text-center mb-5">
+    <h1 class="fw-bold text-white mb-2">Automotive Concierge Support</h1>
+    <p class="text-secondary small">Our dedicated automotive technicians and parts specialists are here to assist you 24/7.</p>
+  </div>
+
+  <div class="p-4 rounded-4 shadow-sm" style="background: var(--bg-secondary); border: 1px solid var(--border-color);">
+    <form method="post" action="{% url 'core:contact' %}">
+      {% csrf_token %}
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <label class="form-label small text-muted">Your Name</label>
+          <input type="text" name="name" class="form-control bg-dark text-white border-secondary" value="{{ user.get_greeting_name|default:'' }}" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small text-muted">Email Address</label>
+          <input type="email" name="email" class="form-control bg-dark text-white border-secondary" value="{{ user.email|default:'' }}" required>
+        </div>
+        <div class="col-12">
+          <label class="form-label small text-muted">Subject / Category</label>
+          <select name="subject" class="form-select bg-dark text-white border-secondary">
+            <option>Spare Part Fitment Query</option>
+            <option>3D Customizer Build Support</option>
+            <option>Service Appointment Reschedule</option>
+            <option>Order Shipping & Delivery Status</option>
+            <option>Partnership & Dealer Inquiry</option>
+          </select>
+        </div>
+        <div class="col-12">
+          <label class="form-label small text-muted">Message / Question</label>
+          <textarea name="message" class="form-control bg-dark text-white border-secondary" rows="4" placeholder="How can our specialist team help you today?" required></textarea>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-cd-primary w-100 py-3 fw-bold">
+        <i class="bi bi-send-fill me-2"></i> Submit Inquiry
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

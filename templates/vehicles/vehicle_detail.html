@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block title %}{{ vehicle.full_name }} — Specifications & 3D Customization | CAR DELIGHTS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb small">
+      <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'vehicles:vehicle_list' %}">Vehicles</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'vehicles:vehicle_list' %}?brand={{ vehicle.brand.slug }}">{{ vehicle.brand.name }}</a></li>
+      <li class="breadcrumb-item active text-white" aria-current="page">{{ vehicle.model }}</li>
+    </ol>
+  </nav>
+
+  <div class="row g-4 mb-5">
+    <!-- Left Vehicle Images Gallery -->
+    <div class="col-lg-7">
+      <div class="card-cd overflow-hidden mb-3 position-relative" style="background: #0B0F19;">
+        <div class="position-absolute top-0 start-0 p-3" style="z-index: 10;">
+          <span class="badge bg-success bg-opacity-90 text-white shadow" style="font-size: 0.8rem; font-weight: 700; letter-spacing: 0.5px;">
+            <i class="bi bi-camera-fill me-1"></i> REAL PHOTO
+          </span>
+        </div>
+        <div class="position-absolute top-0 end-0 p-2" style="z-index: 10;">
+          <button type="button" class="action-btn-circle" onclick="openVehicleLightbox()" title="View Fullscreen">
+            <i class="bi bi-arrows-fullscreen"></i>
+          </button>
+        </div>
+        <div class="card-img-wrapper" style="padding-top: 62%; cursor: zoom-in;" onclick="openVehicleLightbox()">
+          <img src="{{ vehicle.get_primary_image_url }}" id="main-vehicle-image" alt="{{ vehicle.full_name }}" style="object-fit: cover; width: 100%; height: 100%;">
+        </div>
+      </div>
+      
+      <!-- Multi-Angle Gallery Thumbnails -->
+      {% if vehicle.images.count > 1 %}
+        <div class="d-flex gap-2 overflow-x-auto pb-2" id="vehicle-gallery-strip">
+          {% for img in vehicle.images.all %}
+            <div class="position-relative flex-shrink-0 cursor-pointer" onclick="changeVehicleImage('{{ img.get_image_url }}', '{{ img.alt_text }}', this)">
+              <img src="{{ img.get_image_url }}" alt="{{ img.alt_text }}" class="rounded border {% if forloop.first %}border-danger shadow{% else %}border-secondary opacity-75{% endif %} v-gallery-thumb" style="width: 100px; height: 65px; object-fit: cover;">
+              <span class="position-absolute bottom-0 start-0 w-100 text-center text-truncate small px-1" style="background: rgba(0,0,0,0.85); font-size: 9px; color: #E2E8F0;">
+                {{ img.get_image_type_display }}
+              </span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Source & Licensing Verification Badge -->
+      <div class="p-2 rounded mt-2 d-flex align-items-center justify-content-between" style="background: rgba(15, 23, 42, 0.8); border: 1px solid #1E293B;">
+        <div class="d-flex align-items-center gap-2 small">
+          <i class="bi bi-shield-fill-check text-cyan fs-6"></i>
+          <span class="text-white">Media: <strong>{{ vehicle.images.first.source|default:'OEM Media Studio' }}</strong> ({{ vehicle.images.first.license|default:'Commercial Cleared' }})</span>
+        </div>
+        <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 small">
+          <i class="bi bi-patch-check"></i> {{ vehicle.images.first.license_status|default:'VALID' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Right Vehicle Overview & Quick Actions -->
+    <div class="col-lg-5">
+      <div class="p-4 rounded-4 shadow-sm h-100 d-flex flex-column" style="background: var(--bg-secondary); border: 1px solid var(--border-color);">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="badge-tag badge-3d">
+            <i class="bi {% if vehicle.is_3d_available %}bi-box{% else %}bi-car-front{% endif %} me-1"></i>
+            {% if vehicle.is_3d_available %}3D Studio Ready{% else %}{{ vehicle.body_type }}{% endif %}
+          </span>
+          <span class="text-muted small">Year: {{ vehicle.year }}</span>
+        </div>
+
+        <h2 class="fw-bold mb-1 text-white">{{ vehicle.full_name }}</h2>
+        <div class="text-secondary small mb-3">{{ vehicle.variant }} • {{ vehicle.body_type }} ({{ vehicle.fuel_type }})</div>
+
+        <div class="p-3 rounded-3 mb-4" style="background: rgba(229, 9, 20, 0.08); border: 1px solid rgba(229, 9, 20, 0.25);">
+          <div class="text-muted small">Ex-Showroom Price (INR)</div>
+          <div class="fw-bold fs-2 text-danger">{{ vehicle.get_formatted_price }}</div>
+        </div>
+
+        <!-- Key Quick Specs -->
+        <div class="row g-2 mb-4">
+          <div class="col-6">
+            <div class="p-2 rounded bg-dark border border-secondary small">
+              <div class="text-muted">Engine</div>
+              <div class="fw-bold text-white text-truncate">{{ vehicle.engine }}</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="p-2 rounded bg-dark border border-secondary small">
+              <div class="text-muted">Power / Torque</div>
+              <div class="fw-bold text-white text-truncate">{{ vehicle.power }}</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="p-2 rounded bg-dark border border-secondary small">
+              <div class="text-muted">Transmission</div>
+              <div class="fw-bold text-white">{{ vehicle.transmission }}</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="p-2 rounded bg-dark border border-secondary small">
+              <div class="text-muted">Seating</div>
+              <div class="fw-bold text-white">{{ vehicle.seating }} Persons</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action CTAs -->
+        <div class="mt-auto d-flex flex-column gap-2">
+          <div class="d-flex gap-2">
+            <a href="{% url 'customization:customizer' %}?vehicle={{ vehicle.id }}" class="btn btn-cd-primary py-2 px-3 flex-grow-1 text-center fw-bold">
+              <i class="bi bi-box-fill me-1"></i> VIEW 360°
+            </a>
+            <a href="{% url 'customization:customizer' %}?vehicle={{ vehicle.id }}" class="btn btn-cd-gold py-2 px-3 flex-grow-1 text-center fw-bold">
+              <i class="bi bi-palette-fill me-1"></i> CUSTOMIZE
+            </a>
+          </div>
+          <div class="d-flex gap-2">
+            <a href="{% url 'vehicles:vehicle_compare' %}?v1={{ vehicle.id }}" class="btn btn-cd-outline py-2 flex-grow-1 text-center small">
+              <i class="bi bi-arrow-left-right me-1"></i> COMPARE
+            </a>
+            <a href="{% url 'products:product_list' %}?vehicle={{ vehicle.id }}" class="btn btn-cd-outline py-2 flex-grow-1 text-center small">
+              <i class="bi bi-shield-check me-1"></i> CHECK COMPATIBILITY
+            </a>
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-danger py-2 flex-grow-1 text-center fw-bold small" onclick="alert('Booking inquiry initiated for {{ vehicle.full_name }}! Our automotive advisors will reach out immediately.');">
+              <i class="bi bi-bag-check-fill me-1"></i> BUY NOW / BOOK
+            </button>
+            <button class="btn btn-cd-outline py-2 flex-grow-1 text-center small btn-wishlist-toggle" data-vehicle-id="{{ vehicle.id }}">
+              <i class="bi bi-heart me-1"></i> ADD TO WISHLIST
+            </button>
+            <a href="{% url 'garage:my_garage' %}" class="btn btn-cd-outline py-2 px-3 small" title="My Garage">
+              <i class="bi bi-house-door-fill"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detailed Specifications -->
+  <div class="p-4 rounded-4 shadow-sm mb-5" style="background: var(--bg-secondary); border: 1px solid var(--border-color);">
+    <h4 class="fw-bold text-white mb-4"><i class="bi bi-card-checklist text-danger me-2"></i> Technical Specifications</h4>
+    <div class="row g-4">
+      {% for cat_name, specs in specs_by_category.items %}
+        <div class="col-md-6">
+          <h6 class="fw-bold text-danger border-bottom border-secondary pb-2 mb-3">{{ cat_name }}</h6>
+          <table class="table table-dark table-sm mb-0">
+            <tbody>
+              {% for s in specs %}
+                <tr>
+                  <td class="text-muted w-50" style="background:transparent;">{{ s.key }}</td>
+                  <td class="fw-bold text-white" style="background:transparent;">{{ s.value }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Similar Vehicles -->
+  {% if similar_vehicles %}
+    <div class="mb-4">
+      <h4 class="fw-bold text-white mb-3">Similar {{ vehicle.body_type }} Models</h4>
+      <div class="row g-3">
+        {% for sim in similar_vehicles %}
+          <div class="col-6 col-md-3">
+            <div class="card-cd p-2">
+              <img src="{{ sim.get_primary_image_url }}" alt="{{ sim.full_name }}" class="rounded mb-2" style="width:100%; height:130px; object-fit:cover;">
+              <h6 class="fw-bold text-truncate mb-1"><a href="{{ sim.get_absolute_url }}">{{ sim.full_name }}</a></h6>
+              <div class="text-danger small fw-bold">{{ sim.get_formatted_price }}</div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Vehicle Lightbox Modal -->
+  <div class="modal fade" id="vehicleLightboxModal" tabindex="-1" aria-labelledby="vehicleLightboxModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-content" style="background: #090D16; border: 1px solid var(--border-color);">
+        <div class="modal-header border-secondary">
+          <h6 class="modal-title text-white fw-bold" id="vehicleLightboxModalLabel">{{ vehicle.full_name }} — High-Res Gallery</h6>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center p-3">
+          <img src="{{ vehicle.get_primary_image_url }}" id="v-lightbox-image" class="img-fluid rounded" style="max-height: 75vh; object-fit: contain;">
+          <div id="v-lightbox-caption" class="text-secondary small mt-2">{{ vehicle.full_name }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  function changeVehicleImage(url, alt, el) {
+    const mainImg = document.getElementById('main-vehicle-image');
+    if (mainImg) mainImg.src = url;
+    const thumbs = document.querySelectorAll('.v-gallery-thumb');
+    thumbs.forEach(t => {
+      t.classList.remove('border-danger', 'shadow');
+      t.classList.add('border-secondary', 'opacity-75');
+    });
+    if (el) {
+      const img = el.querySelector('img') || el;
+      img.classList.remove('border-secondary', 'opacity-75');
+      img.classList.add('border-danger', 'shadow');
+    }
+  }
+
+  function openVehicleLightbox() {
+    const mainImg = document.getElementById('main-vehicle-image');
+    const lightboxImg = document.getElementById('v-lightbox-image');
+    if (mainImg && lightboxImg) {
+      lightboxImg.src = mainImg.src;
+      const modal = new bootstrap.Modal(document.getElementById('vehicleLightboxModal'));
+      modal.show();
+    }
+  }
+</script>
+{% endblock %}

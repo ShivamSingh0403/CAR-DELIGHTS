@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Compare Vehicles Side by Side — CAR DELIGHTS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="mb-4 pb-3 border-bottom" style="border-color: var(--border-color);">
+    <h1 class="fw-bold mb-1">Vehicle Comparison Studio</h1>
+    <p class="text-secondary small mb-0">Select up to 4 models to compare prices, engine specs, dimensions, and features side by side.</p>
+  </div>
+
+  <!-- Vehicle Picker Form -->
+  <form method="get" class="p-3 rounded-3 mb-4" style="background: var(--bg-secondary); border: 1px solid var(--border-color);">
+    <div class="row g-2 align-items-end">
+      <div class="col-md-3">
+        <label class="small text-muted mb-1">Vehicle 1</label>
+        <select name="id" class="form-select form-select-sm bg-dark text-white border-secondary">
+          <option value="">Select Vehicle...</option>
+          {% for v in all_vehicles %}
+            <option value="{{ v.id }}" {% if selected_vehicles.0.id == v.id %}selected{% endif %}>{{ v.full_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="small text-muted mb-1">Vehicle 2</label>
+        <select name="id" class="form-select form-select-sm bg-dark text-white border-secondary">
+          <option value="">Select Vehicle...</option>
+          {% for v in all_vehicles %}
+            <option value="{{ v.id }}" {% if selected_vehicles.1.id == v.id %}selected{% endif %}>{{ v.full_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="small text-muted mb-1">Vehicle 3 (Optional)</label>
+        <select name="id" class="form-select form-select-sm bg-dark text-white border-secondary">
+          <option value="">Select Vehicle...</option>
+          {% for v in all_vehicles %}
+            <option value="{{ v.id }}" {% if selected_vehicles.2.id == v.id %}selected{% endif %}>{{ v.full_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <button type="submit" class="btn btn-cd-primary w-100 py-2">Compare Now</button>
+      </div>
+    </div>
+  </form>
+
+  {% if selected_vehicles %}
+    <div class="table-responsive rounded-4 shadow-sm" style="background: var(--bg-secondary); border: 1px solid var(--border-color);">
+      <table class="table table-dark table-bordered mb-0 align-middle">
+        <thead>
+          <tr>
+            <th style="width: 220px;" class="text-danger fw-bold">Features & Specs</th>
+            {% for v in selected_vehicles %}
+              <th class="text-center" style="width: 260px;">
+                <img src="{{ v.get_primary_image_url }}" alt="{{ v.full_name }}" class="rounded mb-2" style="width: 100%; height: 140px; object-fit: cover;">
+                <h6 class="fw-bold mb-1 text-white">{{ v.full_name }}</h6>
+                <div class="fw-bold text-danger fs-5">{{ v.get_formatted_price }}</div>
+                <a href="{% url 'customization:customizer' %}?vehicle={{ v.id }}" class="btn btn-cd-primary btn-sm mt-2 w-100">
+                  <i class="bi bi-palette"></i> 3D Customizer
+                </a>
+              </th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="fw-bold text-muted">Brand & Origin</td>
+            {% for v in selected_vehicles %}
+              <td class="text-center">{{ v.brand.name }} ({{ v.brand.origin_country }})</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td class="fw-bold text-muted">Body Type</td>
+            {% for v in selected_vehicles %}
+              <td class="text-center"><span class="badge bg-secondary">{{ v.body_type }}</span></td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td class="fw-bold text-muted">Fuel Type</td>
+            {% for v in selected_vehicles %}
+              <td class="text-center">{{ v.fuel_type }}</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td class="fw-bold text-muted">Transmission</td>
+            {% for v in selected_vehicles %}
+              <td class="text-center">{{ v.transmission }}</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td class="fw-bold text-muted">Engine</td>
+            {% for v in selected_vehicles %}
+              <td class="text-center">{{ v.engine }} ({{ v.engine_capacity }})</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td class="fw-bold text-muted">Max Power</td>
+            {% for v in selected_vehicles %}
+              <td class="text-center fw-bold text-white">{{ v.power }}</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td class="fw-bold text-muted">Max Torque</td>
+            {% for v in selected_vehicles %}
+              <td class="text-center fw-bold text-white">{{ v.torque }}</td>
+            {% endfor %}
+          </tr>
+          <tr>
+            <td class="fw-bold text-muted">Seating Capacity</td>
+            {% for v in selected_vehicles %}
+              <td class="text-center">{{ v.seating }} Persons</td>
+            {% endfor %}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="p-5 text-center text-muted" style="background: var(--bg-secondary); border-radius: var(--radius-md);">
+      <i class="bi bi-arrow-left-right fs-1 d-block mb-3 text-secondary"></i>
+      <h5>Select at least 2 vehicles from the dropdown above to begin side-by-side comparison</h5>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

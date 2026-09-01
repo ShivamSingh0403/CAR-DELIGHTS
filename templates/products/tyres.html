@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}30+ Performance Tyres & Radial Catalog — CAR DELIGHTS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom" style="border-color: var(--border-color);">
+    <div>
+      <span class="badge-tag badge-discount mb-2">High Speed & All-Terrain Grip</span>
+      <h1 class="fw-bold mb-1">Performance Tyres Marketplace</h1>
+      <p class="text-secondary small mb-0">Showing <strong>{{ total_count }}</strong> high-grade tyres from Michelin, MRF, CEAT, Apollo, Bridgestone, and Continental.</p>
+    </div>
+    <div class="d-flex gap-2 mt-3 mt-md-0">
+      <span class="badge bg-dark border border-secondary text-warning d-flex align-items-center px-3">
+        Use Coupon <strong>TYRE5000</strong> for Flat ₹5,000 Off on 4 Tyres
+      </span>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    {% for product in products %}
+      <div class="col-12 col-sm-6 col-md-4 col-xl-3">
+        <div class="card-cd">
+          <div class="card-img-wrapper">
+            <img src="{{ product.get_primary_image_url }}" alt="{{ product.name }}" loading="lazy">
+            <div class="card-overlay-actions">
+              <button class="action-btn-circle btn-wishlist-toggle" data-product-id="{{ product.id }}" title="Wishlist">
+                <i class="bi bi-heart"></i>
+              </button>
+            </div>
+            {% if product.discount_percentage > 0 %}
+              <div class="position-absolute top-0 start-0 p-2">
+                <span class="badge-tag badge-discount">-{{ product.discount_percentage }}% OFF</span>
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="card-body-cd">
+            <div class="text-muted small mb-1">{{ product.brand.name }}</div>
+            <h6 class="fw-bold text-truncate mb-2" title="{{ product.name }}">
+              <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+            </h6>
+            <div class="text-secondary small mb-3">{{ product.short_description|truncatechars:65 }}</div>
+
+            <div class="mt-auto d-flex justify-content-between align-items-center pt-2 border-top" style="border-color: var(--border-color);">
+              <div>
+                <span class="fw-bold text-white fs-5">{{ product.get_formatted_price }}</span>
+              </div>
+              <button class="action-btn-circle btn-add-to-cart-ajax" data-product-id="{{ product.id }}" data-item-type="product" data-quantity="1" title="Add to Cart">
+                <i class="bi bi-cart-plus"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

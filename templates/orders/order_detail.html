@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Order #{{ order.order_id }} — CAR DELIGHTS{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <!-- Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom" style="border-color: var(--border-color);">
+    <div>
+      <h1 class="fw-bold mb-1">Order Details #{{ order.order_id }}</h1>
+      <p class="text-secondary small mb-0">Placed on {{ order.created_at|date:"d F Y at h:i A" }}</p>
+    </div>
+    <div class="d-flex gap-2 mt-3 mt-md-0">
+      <a href="{% url 'orders:track_order' %}?order_id={{ order.order_id }}" class="btn btn-cd-primary btn-sm">
+        <i class="bi bi-geo-alt me-1"></i> Track Live Status
+      </a>
+      <a href="{% url 'orders:order_list' %}" class="btn btn-cd-outline btn-sm">
+        <i class="bi bi-arrow-left me-1"></i> All Orders
+      </a>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Left Items & Breakdown -->
+    <div class="col-lg-8">
+      <div class="p-4 rounded-4 shadow-sm mb-4" style="background: var(--bg-secondary); border: 1px solid var(--border-color);">
+        <h5 class="fw-bold text-white mb-3">Purchased Items</h5>
+        <div class="table-responsive">
+          <table class="table table-dark table-sm align-middle mb-0">
+            <thead>
+              <tr class="text-muted border-secondary">
+                <th>Item</th>
+                <th>Price</th>
+                <th>Qty</th>
+                <th class="text-end">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in order.items.all %}
+                <tr class="border-secondary">
+                  <td>
+                    <div class="fw-bold text-white">{{ item.item_name }}</div>
+                    <div class="text-muted small">Type: {{ item.get_item_type_display }}</div>
+                  </td>
+                  <td>{{ item.get_formatted_price }}</td>
+                  <td>{{ item.quantity }}</td>
+                  <td class="text-end fw-bold text-white">{{ item.get_formatted_total }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Financials & Shipping Address -->
+    <div class="col-lg-4">
+      <div class="p-4 rounded-4 shadow-sm mb-4" style="background: var(--bg-secondary); border: 1px solid var(--border-color);">
+        <h5 class="fw-bold text-white mb-3">Order Status</h5>
+        <div class="mb-3">
+          <span class="badge bg-success fs-6 px-3 py-2">{{ order.get_status_display }}</span>
+        </div>
+        <div class="small text-muted mb-1">Courier: <strong>{{ order.courier_partner }}</strong></div>
+        <div class="small text-muted mb-3">Tracking: <strong class="text-cyan">{{ order.tracking_number }}</strong></div>
+
+        <h6 class="fw-bold text-white mb-2">Delivery Address</h6>
+        <p class="small text-secondary mb-3">
+          {{ order.full_name }}<br>
+          {{ order.address_line1 }}{% if order.address_line2 %}, {{ order.address_line2 }}{% endif %}<br>
+          {{ order.city }}, {{ order.state }} - {{ order.pincode }}<br>
+          Phone: {{ order.phone }}
+        </p>
+
+        <h6 class="fw-bold text-white mb-2">Payment Summary</h6>
+        <ul class="list-unstyled small mb-0">
+          <li class="d-flex justify-content-between mb-1">
+            <span class="text-muted">Subtotal</span>
+            <span class="text-white">{{ order.get_formatted_subtotal }}</span>
+          </li>
+          {% if order.discount_amount > 0 %}
+            <li class="d-flex justify-content-between mb-1 text-warning">
+              <span>Discount</span>
+              <span>-{{ order.get_formatted_discount }}</span>
+            </li>
+          {% endif %}
+          <li class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Payment Mode</span>
+            <span class="text-white">{{ order.payment_method }} ({{ order.payment_status }})</span>
+          </li>
+          <li class="d-flex justify-content-between pt-2 border-top border-secondary fs-5 fw-bold">
+            <span class="text-white">Total</span>
+            <span class="text-danger">{{ order.get_formatted_total }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

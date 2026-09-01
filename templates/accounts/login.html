@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In — CAR DELIGHTS{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 480px;">
+  <div class="p-4 p-sm-5 rounded-4 shadow-lg" style="background: var(--bg-secondary); border: 1px solid var(--border-color);">
+    <div class="text-center mb-4">
+      <span class="badge-tag badge-3d mb-2">WELCOME BACK</span>
+      <h2 class="fw-bold text-white mb-1">Account Login</h2>
+      <p class="text-secondary small">Access your garage vehicles, saved 3D builds, and tracking.</p>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label small text-muted">Username</label>
+        {{ form.username }}
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label small text-muted">Password</label>
+        {{ form.password }}
+      </div>
+
+      <button type="submit" class="btn btn-cd-primary w-100 py-3 fw-bold mb-3">
+        SIGN IN TO CAR DELIGHTS
+      </button>
+
+      <div class="text-center small text-muted">
+        Don't have an account? <a href="{% url 'accounts:register' %}" class="text-danger fw-bold">Register Free</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

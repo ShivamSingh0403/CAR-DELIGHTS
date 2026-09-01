@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}3D Customization Studio — CAR DELIGHTS{% endblock %}
+
+{% block content %}
+<div class="customizer-container">
+  <!-- ============================================================
+       3D VIEWPORT CANVAS AREA
+  ============================================================ -->
+  <div class="customizer-viewport">
+    <!-- Top Floating Vehicle Info -->
+    <div class="position-absolute top-0 start-0 m-3 z-3" style="pointer-events: auto;">
+      <div class="p-3 rounded-3 shadow-lg" style="background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(16px); border: 1px solid var(--border-color); min-width: 280px;">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <span class="badge-tag badge-3d" id="badge-3d-status">3D Customization Available</span>
+          <span class="text-muted small">PBR Shaders</span>
+        </div>
+        <h4 class="fw-bold mb-1 text-white" id="active-vehicle-title">{{ selected_vehicle.full_name }}</h4>
+        <div class="text-secondary small">Base Price: <strong class="text-white" id="active-vehicle-base-price">{{ selected_vehicle.get_formatted_price }}</strong></div>
+      </div>
+    </div>
+
+    <!-- Top Right Switcher / Selector -->
+    <div class="position-absolute top-0 end-0 m-3 z-3 d-none d-md-block" style="pointer-events: auto;">
+      <div class="d-flex align-items-center gap-2 p-2 rounded-3 shadow" style="background: rgba(15, 23, 42, 0.85); border: 1px solid var(--border-color);">
+        <label for="vehicle-selector" class="text-muted small fw-bold mb-0 ps-1">Select Car:</label>
+        <select id="vehicle-selector" class="form-select form-select-sm bg-dark text-white border-secondary" style="max-width: 220px;">
+          {% for v in all_vehicles %}
+            <option value="{{ v.id }}" {% if v.id == selected_vehicle.id %}selected{% endif %}>
+              {{ v.brand.name }} {{ v.model }} ({{ v.year }})
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <!-- 3D WebGL Canvas Container -->
+    <div id="customizer-canvas-container"></div>
+
+    <!-- Loading Indicator Overlay -->
+    <div id="customizer-loading-overlay" class="position-absolute top-0 start-0 w-100 h-100 d-none flex-column align-items-center justify-content-center" style="background: rgba(7, 9, 14, 0.85); z-index: 15;">
+      <div class="spinner-border text-danger mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
+      <div class="fw-bold text-white fs-5">Loading 3D Vehicle & Shaders...</div>
+      <div class="text-muted small">Rendering PBR Automotive Materials</div>
+    </div>
+
+    <!-- 3D Asset Availability Status Badge -->
+    <div id="customizer-3d-status-badge" class="position-absolute top-0 start-0 m-3 px-3 py-1 rounded-pill small fw-bold text-white d-flex align-items-center gap-1" style="background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255,255,255,0.15); z-index: 10;">
+      <i class="bi bi-box-fill text-cyan" id="customizer-3d-icon"></i>
+      <span id="customizer-3d-text">3D WebGL PBR Simulation Active</span>
+    </div>
+
+    <!-- Floating Viewport Controls -->
+    <div class="viewport-floating-controls">
+      <button class="viewport-control-btn" data-camera-preset="front" title="Front View">
+        <i class="bi bi-arrow-up-circle"></i> Front
+      </button>
+      <button class="viewport-control-btn" data-camera-preset="side_left" title="Side View">
+        <i class="bi bi-arrow-left-circle"></i> Side
+      </button>
+      <button class="viewport-control-btn" data-camera-preset="rear" title="Rear View">
+        <i class="bi bi-arrow-down-circle"></i> Rear
+      </button>
+      <button class="viewport-control-btn" data-camera-preset="top" title="Top Down View">
+        <i class="bi bi-arrows-fullscreen"></i> Top
+      </button>
+      <button class="viewport-control-btn" data-camera-preset="perspective" title="Reset Camera">
+        <i class="bi bi-camera-reels"></i> 3/4 Reset
+      </button>
+      <div class="vr bg-secondary mx-1" style="height: 20px;"></div>
+      <button class="viewport-control-btn active" id="btn-toggle-rotate" title="Toggle Auto Rotation">
+        <i class="bi bi-pause-fill"></i>
+      </button>
+      <button class="btn btn-cd-outline btn-sm py-1 px-2" id="btn-toggle-compare">
+        Compare with Stock
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       RIGHT CUSTOMIZATION SIDEBAR
+  ============================================================ -->
+  <div class="customizer-sidebar">
+    <!-- Tab Navigation -->
+    <div class="d-flex border-bottom border-secondary overflow-x-auto">
+      <button class="customizer-tab-btn active" data-bs-toggle="pill" data-bs-target="#tab-paint">
+        <i class="bi bi-brush me-1"></i> Paint
+      </button>
+      <button class="customizer-tab-btn" data-bs-toggle="pill" data-bs-target="#tab-wheels">
+        <i class="bi bi-disc me-1"></i> Wheels
+      </button>
+      <button class="customizer-tab-btn" data-bs-toggle="pill" data-bs-target="#tab-aero">
+        <i class="bi bi-airplane-engines me-1"></i> Aero & Wings
+      </button>
+      <button class="customizer-tab-btn" data-bs-toggle="pill" data-bs-target="#tab-summary">
+        <i class="bi bi-receipt me-1"></i> Summary
+      </button>
+    </div>
+
+    <!-- Tab Contents -->
+    <div class="tab-content p-3 flex-grow-1 overflow-y-auto">
+      <!-- 1. Paint Studio Tab -->
+      <div class="tab-pane fade show active" id="tab-paint">
+        <div class="mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="fw-bold mb-0 text-white">Paint Studio (30+ Options)</h6>
+            <a href="{% url 'customization:paint_studio' %}" target="_blank" class="text-danger small fw-bold">Explore All</a>
+          </div>
+          <div class="text-secondary small mb-3" id="selected-paint-name">Select a paint swatch below</div>
+          <div class="d-flex flex-wrap gap-2 mb-4" id="paint-swatches-grid">
+            <!-- Swatches dynamically loaded via customizer.js -->
+          </div>
+        </div>
+
+        <div class="p-3 rounded-3 mb-3" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color);">
+          <div class="small fw-bold text-white mb-1"><i class="bi bi-shield-check text-success me-1"></i> Studio Oven-Baked Guarantee</div>
+          <div class="text-muted" style="font-size: 0.75rem;">All custom resprays undergo computerized spectrophotometer color matching with 5-year anti-peeling warranty.</div>
+        </div>
+      </div>
+
+      <!-- 2. Wheels Tab -->
+      <div class="tab-pane fade" id="tab-wheels">
+        <h6 class="fw-bold text-white mb-2">Compatible Alloy Wheels</h6>
+        <p class="text-muted small mb-3">Forged aluminum monoblock & diamond cut styles.</p>
+        <div id="parts-list-wheels">
+          <!-- Loaded via customizer.js -->
+        </div>
+      </div>
+
+      <!-- 3. Aerodynamics & Spoilers Tab -->
+      <div class="tab-pane fade" id="tab-aero">
+        <h6 class="fw-bold text-white mb-2">Rear Spoilers & Carbon Wings</h6>
+        <p class="text-muted small mb-3">Engineered for real downforce and aggressive race styling.</p>
+        <div id="parts-list-spoilers">
+          <!-- Loaded via customizer.js -->
+        </div>
+      </div>
+
+      <!-- 4. Summary & Price Breakdown Tab -->
+      <div class="tab-pane fade" id="tab-summary">
+        <h6 class="fw-bold text-white mb-3">Live Custom Build Breakdown</h6>
+        <ul class="list-unstyled mb-3" id="build-breakdown-list">
+          <!-- Dynamically populated -->
+        </ul>
+        <div class="p-3 rounded-3" style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3);">
+          <div class="small fw-bold text-warning mb-1">Includes Studio Installation</div>
+          <div class="text-secondary small">Zero hidden charges. Complete vehicle assembly & computerized diagnostics included.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Actions & Live Total Price Bar -->
+    <div class="build-price-bar flex-column align-items-stretch gap-2">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="text-muted small">Total Build Price</div>
+          <div class="build-price-amount" id="live-total-build-price">₹0</div>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-cd-outline btn-sm py-2 px-3" id="btn-save-build" title="Save this configuration">
+            <i class="bi bi-bookmark-fill"></i> Save
+          </button>
+          <button class="btn btn-cd-primary btn-sm py-2 px-3 fw-bold" id="btn-add-build-cart">
+            <i class="bi bi-cart-plus"></i> Order Build
+          </button>
+        </div>
+      </div>
+      <input type="text" id="custom-build-name-input" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Build Name (e.g. My Stealth Edition)">
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<!-- 3D Studio Engine Modules -->
+<script src="/static/js/3d/materials.js"></script>
+<script src="/static/js/3d/lighting.js"></script>
+<script src="/static/js/3d/camera.js"></script>
+<script src="/static/js/3d/parts.js"></script>
+<script src="/static/js/3d/vehicle-loader.js"></script>
+<script src="/static/js/3d/viewer.js"></script>
+<script src="/static/js/3d/customizer.js"></script>
+{% endblock %}

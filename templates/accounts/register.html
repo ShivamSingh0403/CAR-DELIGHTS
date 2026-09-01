@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Create Your Account — CAR DELIGHTS{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 540px;">
+  <div class="p-4 p-sm-5 rounded-4 shadow-lg" style="background: var(--bg-secondary); border: 1px solid var(--border-color);">
+    <div class="text-center mb-4">
+      <span class="badge-tag badge-3d mb-2">JOIN CAR DELIGHTS</span>
+      <h2 class="fw-bold text-white mb-1">Create Account</h2>
+      <p class="text-secondary small">Unlock 3D customization studio, saved garage builds, and verified member discounts.</p>
+    </div>
+
+    <form method="post" action="{% url 'accounts:register' %}">
+      {% csrf_token %}
+
+      <!-- What should we call you field -->
+      <div class="mb-3">
+        <label class="form-label small fw-bold text-white">
+          <i class="bi bi-person-fill text-danger me-1"></i> What should we call you?
+        </label>
+        {{ form.display_name }}
+        <div class="form-text text-muted" style="font-size:0.75rem;">e.g. Shivam (This will be your personalized greeting)</div>
+        {% if form.display_name.errors %}
+          <div class="text-danger small mt-1">{{ form.display_name.errors }}</div>
+        {% endif %}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small text-muted">Username</label>
+        {{ form.username }}
+        {% if form.username.errors %}
+          <div class="text-danger small mt-1">{{ form.username.errors }}</div>
+        {% endif %}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small text-muted">Email Address</label>
+        {{ form.email }}
+        {% if form.email.errors %}
+          <div class="text-danger small mt-1">{{ form.email.errors }}</div>
+        {% endif %}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small text-muted">Mobile Phone (Optional)</label>
+        {{ form.phone }}
+        {% if form.phone.errors %}
+          <div class="text-danger small mt-1">{{ form.phone.errors }}</div>
+        {% endif %}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label small text-muted">Password</label>
+        {{ form.password1 }}
+        {% if form.password1.errors %}
+          <div class="text-danger small mt-1">{{ form.password1.errors }}</div>
+        {% endif %}
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label small text-muted">Confirm Password</label>
+        {{ form.password2 }}
+        {% if form.password2.errors %}
+          <div class="text-danger small mt-1">{{ form.password2.errors }}</div>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="btn btn-cd-primary w-100 py-3 fw-bold mb-3">
+        REGISTER ACCOUNT
+      </button>
+
+      <div class="text-center small text-muted">
+        Already have a Car Delights account? <a href="{% url 'accounts:login' %}" class="text-danger fw-bold">Login Here</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
