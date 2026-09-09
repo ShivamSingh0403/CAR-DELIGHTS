@@ -60,10 +60,11 @@ class Service(models.Model):
         return f"{settings.STATIC_URL}images/default_service.svg"
 
     def get_formatted_price(self):
-        return f"₹{self.price:,.0f}"
+        from apps.core.utils import format_inr
+        return format_inr(self.price)
 
     def __str__(self):
-        return f"{self.name} - ₹{self.price:,.0f}"
+        return f"{self.name} - {self.get_formatted_price()}"
 
 
 class ServiceBooking(models.Model):

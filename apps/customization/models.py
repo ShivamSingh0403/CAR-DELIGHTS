@@ -34,10 +34,11 @@ class PaintOption(models.Model):
         ordering = ['finish_type', 'name']
 
     def get_formatted_price(self):
-        return f"₹{self.price:,.0f}"
+        from apps.core.utils import format_inr
+        return format_inr(self.price)
 
     def __str__(self):
-        return f"{self.name} ({self.finish_type}) - ₹{self.price:,.0f}"
+        return f"{self.name} ({self.finish_type}) - {self.get_formatted_price()}"
 
 
 class CustomBuild(models.Model):
@@ -87,7 +88,8 @@ class CustomBuild(models.Model):
         super().save(*args, **kwargs)
 
     def get_formatted_total(self):
-        return f"₹{self.total_price:,.0f}"
+        from apps.core.utils import format_inr
+        return format_inr(self.total_price)
 
     def __str__(self):
         return f"{self.name} - {self.vehicle.full_name} ({self.get_formatted_total()})"

@@ -78,13 +78,16 @@ class Order(models.Model):
         super().save(*args, **kwargs)
 
     def get_formatted_total(self):
-        return f"₹{self.total_amount:,.0f}"
+        from apps.core.utils import format_inr
+        return format_inr(self.total_amount)
 
     def get_formatted_subtotal(self):
-        return f"₹{self.subtotal:,.0f}"
+        from apps.core.utils import format_inr
+        return format_inr(self.subtotal)
 
     def get_formatted_discount(self):
-        return f"₹{self.discount_amount:,.0f}"
+        from apps.core.utils import format_inr
+        return format_inr(self.discount_amount)
 
     def __str__(self):
         return f"Order #{self.order_id} - {self.full_name} ({self.get_formatted_total()})"
@@ -111,10 +114,12 @@ class OrderItem(models.Model):
     total_price = models.DecimalField(max_digits=12, decimal_places=2)
 
     def get_formatted_price(self):
-        return f"₹{self.price:,.0f}"
+        from apps.core.utils import format_inr
+        return format_inr(self.price)
 
     def get_formatted_total(self):
-        return f"₹{self.total_price:,.0f}"
+        from apps.core.utils import format_inr
+        return format_inr(self.total_price)
 
     def __str__(self):
         return f"{self.item_name} x {self.quantity} ({self.order.order_id})"

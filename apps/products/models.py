@@ -147,14 +147,17 @@ class Product(models.Model):
         return self.images.exclude(image_type='primary').order_by('sort_order', 'id')
 
     def get_formatted_price(self):
-        return f"₹{self.price:,.0f}"
+        from apps.core.utils import format_inr
+        return format_inr(self.price)
 
     def get_formatted_mrp(self):
-        return f"₹{self.mrp:,.0f}"
+        from apps.core.utils import format_inr
+        return format_inr(self.mrp)
 
     def get_savings(self):
+        from apps.core.utils import format_inr
         if self.mrp > self.price:
-            return f"₹{(self.mrp - self.price):,.0f}"
+            return format_inr(self.mrp - self.price)
         return "₹0"
 
     def get_absolute_url(self):

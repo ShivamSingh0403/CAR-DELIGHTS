@@ -94,10 +94,12 @@ class CartItem(models.Model):
         return '/static/images/placeholder_part.svg'
 
     def get_formatted_price(self):
-        return f"₹{self.price:,.0f}"
+        from apps.core.utils import format_inr
+        return format_inr(self.price)
 
     def get_formatted_total(self):
-        return f"₹{self.get_total_price():,.0f}"
+        from apps.core.utils import format_inr
+        return format_inr(self.get_total_price())
 
     def __str__(self):
         return f"{self.get_name()} (Qty: {self.quantity})"

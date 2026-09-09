@@ -668,20 +668,319 @@ a:hover {
   }
 }
 
-/* Responsive adjustments */
-@media (max-width: 992px) {
-  .hero-title {
-    font-size: 2.5rem;
+/* ============================================================
+   MODERN NAVBAR & RESPONSIVE DESIGN SYSTEM
+============================================================ */
+
+/* Brand & Icon Tweaks */
+.brand-icon-circle {
+  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth);
+  box-shadow: 0 0 15px rgba(229, 9, 20, 0.4);
+}
+
+.navbar-brand:hover .brand-icon-circle {
+  transform: rotate(-10deg) scale(1.08);
+  box-shadow: 0 0 20px rgba(229, 9, 20, 0.6);
+}
+
+.brand-text {
+  font-size: 1.25rem;
+  letter-spacing: 0.04em;
+  background: linear-gradient(135deg, #FFFFFF 0%, #E2E8F0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+[data-theme="light"] .brand-text {
+  background: linear-gradient(135deg, #0F172A 0%, #334155 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-subtext {
+  font-size: 0.55rem;
+  letter-spacing: 0.16em;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin-top: -2px;
+}
+
+/* Mobile Quick Action Buttons */
+.mobile-quick-btn {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 50%;
+  font-size: 1rem;
+  transition: all var(--transition-fast);
+}
+
+.mobile-quick-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--accent-red);
+}
+
+/* Animated Hamburger Toggle Button */
+.cd-hamburger-btn {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.cd-hamburger-btn:hover, .cd-hamburger-btn:focus {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.cd-hamburger-icon {
+  width: 20px;
+  height: 15px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.cd-hamburger-icon .bar {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background-color: var(--text-primary);
+  border-radius: 2px;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+  transform-origin: center;
+}
+
+/* Hamburger Morph into 'X' when Open */
+.cd-hamburger-btn:not(.collapsed) .cd-hamburger-icon .bar-1 {
+  transform: translateY(6.5px) rotate(45deg);
+  background-color: var(--accent-red);
+}
+
+.cd-hamburger-btn:not(.collapsed) .cd-hamburger-icon .bar-2 {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.cd-hamburger-btn:not(.collapsed) .cd-hamburger-icon .bar-3 {
+  transform: translateY(-6.5px) rotate(-45deg);
+  background-color: var(--accent-red);
+}
+
+/* Mobile Collapse Drawer Styling */
+@media (max-width: 1199.98px) {
+  .navbar-collapse {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    margin-top: 0.75rem;
+    box-shadow: var(--shadow-lg);
+    max-height: 80vh;
+    overflow-y: auto;
   }
+
+  .navbar-cd .search-container {
+    max-width: 100%;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .cd-nav-menu .nav-link-cd {
+    padding: 0.75rem 1rem !important;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    margin-bottom: 0.35rem;
+    font-size: 0.95rem;
+  }
+
+  .cd-nav-menu .nav-link-cd:hover,
+  .cd-nav-menu .nav-link-cd.active {
+    background: rgba(229, 9, 20, 0.12);
+    border-color: rgba(229, 9, 20, 0.3);
+    color: #FFFFFF !important;
+  }
+}
+
+/* ============================================================
+   RESPONSIVE GRID, CARDS, & LAYOUT OPTIMIZATIONS
+============================================================ */
+
+/* Global Mobile Viewport Sanitation */
+html, body {
+  max-width: 100%;
+  width: 100%;
+  overflow-x: hidden !important;
+}
+
+/* Fluid Typography for Headers */
+h1, .hero-title {
+  font-size: clamp(1.6rem, 4vw + 0.5rem, 3.25rem);
+  line-height: 1.2;
+}
+
+h2 {
+  font-size: clamp(1.35rem, 3vw + 0.3rem, 2.25rem);
+}
+
+/* Mobile-Aware Card Grid */
+.card-cd {
+  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth), border-color var(--transition-fast);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  height: 100%;
+}
+
+.card-cd:hover {
+  transform: translateY(-4px);
+  border-color: rgba(229, 9, 20, 0.4);
+  box-shadow: var(--shadow-md);
+}
+
+.card-cd .card-img-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.card-cd .card-img-wrapper img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-cd:hover .card-img-wrapper img {
+  transform: scale(1.05);
+}
+
+/* Mobile Filters Drawer / Accordion */
+.filter-sidebar-mobile {
+  margin-bottom: 1.5rem;
+}
+
+/* Table Responsiveness */
+.table-responsive {
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Multi-angle Gallery Strip on Mobile */
+#vehicle-gallery-strip {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+}
+
+#vehicle-gallery-strip::-webkit-scrollbar {
+  height: 4px;
+}
+
+#vehicle-gallery-strip::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+/* Breakpoint-Specific Mobile Rules (< 992px) */
+@media (max-width: 991.98px) {
+  .hero-title {
+    font-size: 2.25rem;
+  }
+  
   .customizer-container {
     flex-direction: column;
     height: auto;
   }
+  
   .customizer-viewport {
-    height: 50vh;
+    height: 45vh;
+    min-height: 320px;
   }
+  
   .customizer-sidebar {
     width: 100%;
-    height: 50vh;
+    height: 55vh;
+  }
+
+  .tata-hero-banner {
+    padding: 1.75rem 1.25rem;
+  }
+
+  .footer-cd {
+    padding: 2.5rem 0 1.5rem 0;
+    text-align: center;
+  }
+
+  .footer-cd .row > div {
+    margin-bottom: 2rem;
+  }
+}
+
+/* Small Smartphone Breakpoint (< 576px, e.g. iPhone 12/13/14 390x844) */
+@media (max-width: 575.98px) {
+  .container, .container-fluid {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  .navbar-cd {
+    padding: 0.6rem 0;
+  }
+
+  .navbar-brand {
+    font-size: 1.2rem !important;
+  }
+
+  .brand-text {
+    font-size: 1.05rem;
+  }
+
+  .card-cd {
+    margin-bottom: 0.5rem;
+  }
+
+  .card-body-cd {
+    padding: 1rem;
+  }
+
+  .btn-cd-primary, .btn-cd-outline {
+    padding: 0.6rem 1.1rem;
+    font-size: 0.9rem;
+  }
+
+  /* Price styling on small mobile */
+  .fs-2 {
+    font-size: 1.6rem !important;
+  }
+
+  /* Ensure modal & toast don't overflow */
+  .toast-container-cd {
+    right: 15px;
+    left: 15px;
+  }
+
+  .toast-cd {
+    min-width: unset;
+    width: 100%;
   }
 }

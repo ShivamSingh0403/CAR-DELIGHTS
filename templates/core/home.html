@@ -79,26 +79,15 @@
           <div class="card-cd h-100 d-flex flex-column">
             <div class="card-img-wrapper" style="padding-top: 60%; background: #0B0F19;">
               <img src="{{ vehicle.get_primary_image_url }}" alt="{{ vehicle.full_name }}" loading="lazy" style="object-fit: cover; width: 100%; height: 100%;">
-              <div class="position-absolute top-0 start-0 p-2" style="z-index: 2;">
-                <span class="badge bg-success bg-opacity-90 text-white shadow-sm" style="font-size: 0.72rem; font-weight: 700; letter-spacing: 0.5px;">
-                  <i class="bi bi-camera-fill me-1"></i> REAL PHOTO
-                </span>
-              </div>
               <div class="card-overlay-actions" style="z-index: 2;">
                 <button class="action-btn-circle btn-wishlist-toggle" data-vehicle-id="{{ vehicle.id }}" title="Save to Wishlist">
                   <i class="bi bi-heart"></i>
                 </button>
               </div>
               <div class="position-absolute bottom-0 start-0 p-2" style="z-index: 2;">
-                {% if vehicle.is_3d_available and vehicle.model_3d_path %}
-                  <span class="badge-tag badge-3d">
-                    <i class="bi bi-box me-1"></i> 3D Studio Ready
-                  </span>
-                {% else %}
-                  <span class="badge-tag bg-dark text-white border border-secondary">
-                    <i class="bi bi-speedometer2 me-1"></i> {{ vehicle.body_type }}
-                  </span>
-                {% endif %}
+                <span class="badge-tag bg-dark text-white border border-secondary">
+                  <i class="bi bi-car-front me-1"></i> {{ vehicle.body_type }}
+                </span>
               </div>
             </div>
 
@@ -159,10 +148,10 @@
             <span class="text-cyan small fw-bold"><i class="bi bi-arrow-repeat"></i> 360° INTERACTIVE</span>
           </div>
           <img src="/media/vehicles/photos/curated/tata-nexon.jpg" alt="3D Studio Preview" class="img-fluid rounded mb-3" style="max-height: 260px; object-fit: cover; width: 100%;">
-          <div class="d-flex justify-content-center gap-2">
-            <span class="badge bg-dark border border-secondary text-white px-3 py-2">Real PBR Shaders</span>
-            <span class="badge bg-dark border border-secondary text-white px-3 py-2">Live Price Ticker</span>
-            <span class="badge bg-dark border border-secondary text-white px-3 py-2">Before/After Slider</span>
+          <div class="d-flex flex-wrap justify-content-center gap-2">
+            <span class="badge bg-dark border border-secondary text-white px-2 py-1 small">Real PBR Shaders</span>
+            <span class="badge bg-dark border border-secondary text-white px-2 py-1 small">Live Price Ticker</span>
+            <span class="badge bg-dark border border-secondary text-white px-2 py-1 small">Before/After Slider</span>
           </div>
         </div>
       </div>

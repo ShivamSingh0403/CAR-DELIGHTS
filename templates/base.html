@@ -31,105 +31,140 @@
   <!-- ============================================================
        TOP ANNOUNCEMENT BAR
   ============================================================ -->
-  <div class="py-1 text-center small text-white" style="background: linear-gradient(90deg, #E50914 0%, #0F172A 50%, #E50914 100%); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em;">
-    ⚡ FESTIVAL SPECIAL: USE COUPON <span class="badge bg-warning text-dark px-2 py-1">FESTIVE10</span> FOR 10% FLAT OFF • TATA OWNERS GET 20% OFF WITH <span class="badge bg-primary text-white px-2 py-1">TATA20</span>
+  <div class="py-1 px-2 text-center small text-white text-wrap overflow-hidden" style="background: linear-gradient(90deg, #E50914 0%, #0F172A 50%, #E50914 100%); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.03em;">
+    ⚡ FESTIVAL SPECIAL: USE COUPON <span class="badge bg-warning text-dark px-2 py-1">FESTIVE10</span> FOR 10% OFF • TATA OWNERS GET 20% OFF WITH <span class="badge bg-primary text-white px-2 py-1">TATA20</span>
   </div>
 
   <!-- ============================================================
        MAIN NAVIGATION BAR
   ============================================================ -->
-  <nav class="navbar navbar-expand-xl navbar-cd">
-    <div class="container-fluid px-lg-4">
+  <nav class="navbar navbar-expand-xl navbar-cd sticky-top">
+    <div class="container-fluid px-3 px-lg-4">
       <!-- Brand Logo -->
-      <a class="navbar-brand me-3" href="{% url 'core:home' %}">
-        <span class="action-btn-circle" style="background: var(--gradient-red); color:#fff; width:38px; height:38px;">
+      <a class="navbar-brand d-flex align-items-center gap-2 me-2 me-lg-4" href="{% url 'core:home' %}">
+        <span class="action-btn-circle brand-icon-circle" style="background: var(--gradient-red); color:#fff; width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; border-radius:50%;">
           <i class="bi bi-speedometer2 fs-5"></i>
         </span>
-        <span class="fw-bold tracking-tight">CAR DELIGHTS</span>
-        <span class="brand-badge d-none d-sm-inline">PRO</span>
+        <div class="d-flex flex-column leading-none">
+          <span class="fw-bold brand-text">CAR DELIGHTS</span>
+          <span class="brand-subtext d-none d-sm-block">AUTOMOTIVE PLATFORM</span>
+        </div>
+        <span class="brand-badge ms-1">PRO</span>
       </a>
 
-      <!-- Mobile Toggle -->
-      <button class="navbar-toggler text-white border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-        <i class="bi bi-list fs-2"></i>
-      </button>
+      <!-- Mobile Quick Actions & Hamburger Toggle -->
+      <div class="d-flex d-xl-none align-items-center gap-2 ms-auto">
+        <!-- Quick Theme Toggle -->
+        <button class="action-btn-circle theme-toggle-btn mobile-quick-btn" title="Toggle Theme">
+          <i class="bi {% if active_theme == 'light' %}bi-moon-stars-fill{% else %}bi-sun-fill{% endif %} theme-toggle-icon"></i>
+        </button>
 
-      <!-- Nav Content -->
+        <!-- Quick Wishlist -->
+        <a href="{% url 'core:wishlist' %}" class="action-btn-circle position-relative mobile-quick-btn" title="Wishlist">
+          <i class="bi bi-heart"></i>
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger wishlist-count-badge" style="font-size: 0.6rem; {% if wishlist_count == 0 %}display:none;{% endif %}">
+            {{ wishlist_count }}
+          </span>
+        </a>
+
+        <!-- Quick Cart -->
+        <a href="{% url 'cart:cart_detail' %}" class="action-btn-circle position-relative mobile-quick-btn" title="Cart">
+          <i class="bi bi-cart3"></i>
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-count-badge" style="font-size: 0.6rem; {% if cart_count == 0 %}display:none;{% endif %}">
+            {{ cart_count }}
+          </span>
+        </a>
+
+        <!-- Mobile Hamburger Button -->
+        <button class="navbar-toggler cd-hamburger-btn border-0 shadow-none p-1 ms-1" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="cd-hamburger-icon">
+            <span class="bar bar-1"></span>
+            <span class="bar bar-2"></span>
+            <span class="bar bar-3"></span>
+          </span>
+        </button>
+      </div>
+
+      <!-- Collapsible Navigation Content -->
       <div class="collapse navbar-collapse" id="navbarContent">
         <!-- Live Global Search -->
-        <div class="search-container my-2 my-xl-0 mx-xl-3">
+        <div class="search-container my-3 my-xl-0 mx-xl-3">
           <i class="bi bi-search search-icon"></i>
           <input type="text" id="global-search-input" class="search-input" placeholder="Search 250+ cars, parts, tyres, services..." autocomplete="off">
           <div id="search-suggestions-dropdown" class="search-suggestions-dropdown"></div>
         </div>
 
-        <!-- Center Links -->
-        <ul class="navbar-nav me-auto mb-2 mb-xl-0 gap-1">
+        <!-- Center Nav Links -->
+        <ul class="navbar-nav me-auto mb-3 mb-xl-0 gap-1 cd-nav-menu">
           <li class="nav-item">
             <a class="nav-link nav-link-cd {% if request.resolver_match.app_name == 'vehicles' %}active{% endif %}" href="{% url 'vehicles:vehicle_list' %}">
-              <i class="bi bi-car-front me-1"></i> Cars
+              <i class="bi bi-car-front me-1 text-danger"></i> <span>Cars</span>
             </a>
           </li>
           <li class="nav-item">
             <a class="nav-link nav-link-cd {% if request.resolver_match.app_name == 'products' %}active{% endif %}" href="{% url 'products:product_list' %}">
-              <i class="bi bi-gear-wide-connected me-1"></i> Spare Parts
+              <i class="bi bi-gear-wide-connected me-1 text-primary"></i> <span>Spare Parts</span>
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link nav-link-cd text-warning fw-bold" href="{% url 'customization:customizer' %}">
-              <i class="bi bi-box me-1 text-cyan"></i> 3D Customizer
+            <a class="nav-link nav-link-cd customizer-nav-link" href="{% url 'customization:customizer' %}">
+              <i class="bi bi-box me-1 text-cyan"></i> <span>3D Customizer</span>
+              <span class="badge bg-warning text-dark ms-1 py-0 px-1 fw-bold" style="font-size: 0.65rem;">NEW</span>
             </a>
           </li>
           <li class="nav-item">
             <a class="nav-link nav-link-cd {% if request.resolver_match.app_name == 'services' %}active{% endif %}" href="{% url 'services:service_list' %}">
-              <i class="bi bi-wrench me-1"></i> Services
+              <i class="bi bi-wrench-adjustable me-1 text-success"></i> <span>Services</span>
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link nav-link-cd" href="{% url 'core:tata_zone' %}" style="color: #60A5FA !important;">
-              <i class="bi bi-shield-fill-check me-1"></i> Tata Zone
+            <a class="nav-link nav-link-cd tata-nav-link" href="{% url 'core:tata_zone' %}" style="color: #60A5FA !important;">
+              <i class="bi bi-shield-fill-check me-1"></i> <span>Tata Zone</span>
             </a>
           </li>
           <li class="nav-item">
             <a class="nav-link nav-link-cd" href="{% url 'offers:offer_list' %}">
-              <i class="bi bi-percent me-1 text-danger"></i> Offers
+              <i class="bi bi-percent me-1 text-warning"></i> <span>Offers</span>
             </a>
           </li>
         </ul>
 
-        <!-- Right User Actions & Status -->
-        <div class="d-flex align-items-center gap-2 mt-3 mt-xl-0">
-          <!-- Dynamic User Greeting Badge -->
-          <div class="d-none d-md-block px-3 py-1 rounded-pill small fw-semibold text-truncate" style="background: rgba(255,255,255,0.06); border: 1px solid var(--border-color); max-width: 190px;">
+        <!-- Right User Actions & Status (Desktop & Mobile Drawer Extension) -->
+        <div class="d-flex flex-wrap align-items-center gap-2 pt-3 pt-xl-0 border-top border-xl-0 border-secondary border-opacity-25 mt-2 mt-xl-0">
+          <!-- Dynamic User Greeting Badge (Desktop) -->
+          <div class="d-none d-xxl-block px-3 py-1 rounded-pill small fw-semibold text-truncate" style="background: rgba(255,255,255,0.06); border: 1px solid var(--border-color); max-width: 170px;">
             {{ greeting_full }}
           </div>
 
-          <!-- Theme Switcher -->
-          <button class="action-btn-circle theme-toggle-btn" title="Toggle Midnight Black / Clean White">
+          <!-- Desktop Theme Switcher -->
+          <button class="action-btn-circle theme-toggle-btn d-none d-xl-flex" title="Toggle Midnight Black / Clean White">
             <i class="bi {% if active_theme == 'light' %}bi-moon-stars-fill{% else %}bi-sun-fill{% endif %} theme-toggle-icon"></i>
           </button>
 
-          <!-- Wishlist -->
-          <a href="{% url 'core:wishlist' %}" class="action-btn-circle position-relative" title="My Wishlist">
+          <!-- Desktop Wishlist -->
+          <a href="{% url 'core:wishlist' %}" class="action-btn-circle position-relative d-none d-xl-flex" title="My Wishlist">
             <i class="bi bi-heart"></i>
             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger wishlist-count-badge" style="font-size: 0.65rem; {% if wishlist_count == 0 %}display:none;{% endif %}">
               {{ wishlist_count }}
             </span>
           </a>
 
-          <!-- Cart -->
-          <a href="{% url 'cart:cart_detail' %}" class="action-btn-circle position-relative" title="Shopping Cart">
+          <!-- Desktop Cart -->
+          <a href="{% url 'cart:cart_detail' %}" class="action-btn-circle position-relative d-none d-xl-flex" title="Shopping Cart">
             <i class="bi bi-cart3"></i>
             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-count-badge" style="font-size: 0.65rem; {% if cart_count == 0 %}display:none;{% endif %}">
               {{ cart_count }}
             </span>
           </a>
 
-          <!-- Account Dropdown -->
+          <!-- Account Dropdown / Auth Buttons -->
           {% if user.is_authenticated %}
-            <div class="dropdown">
-              <button class="btn btn-cd-outline dropdown-toggle py-1 px-3" type="button" data-bs-toggle="dropdown">
-                <i class="bi bi-person-circle text-danger"></i> {{ greeting_name }}
+            <div class="dropdown w-100 w-xl-auto">
+              <button class="btn btn-cd-outline dropdown-toggle py-1 px-3 w-100 w-xl-auto text-start d-flex align-items-center justify-content-between gap-2" type="button" data-bs-toggle="dropdown">
+                <span class="d-flex align-items-center gap-2">
+                  <i class="bi bi-person-circle text-danger"></i>
+                  <span>{{ greeting_name }}</span>
+                </span>
               </button>
               <ul class="dropdown-menu dropdown-menu-end shadow-lg" style="background:var(--bg-secondary); border-color:var(--border-color);">
                 <li><h6 class="dropdown-header text-muted">Signed in as <strong>{{ user.username }}</strong></h6></li>
@@ -147,8 +182,10 @@
               </ul>
             </div>
           {% else %}
-            <a href="{% url 'accounts:login' %}" class="btn btn-cd-outline py-1 px-3">Login</a>
-            <a href="{% url 'accounts:register' %}" class="btn btn-cd-primary py-1 px-3">Register</a>
+            <div class="d-flex gap-2 w-100 w-xl-auto">
+              <a href="{% url 'accounts:login' %}" class="btn btn-cd-outline py-1 px-3 flex-fill text-center">Login</a>
+              <a href="{% url 'accounts:register' %}" class="btn btn-cd-primary py-1 px-3 flex-fill text-center">Register</a>
+            </div>
           {% endif %}
         </div>
       </div>

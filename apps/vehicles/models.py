@@ -135,7 +135,8 @@ class Vehicle(models.Model):
         return '/static/images/real_photo_asset_required.svg'
 
     def get_formatted_price(self):
-        return f"₹{self.price:,.0f}"
+        from apps.core.utils import format_inr
+        return format_inr(self.price)
 
     def __str__(self):
         return self.full_name
@@ -148,6 +149,10 @@ class VehicleVariant(models.Model):
     transmission = models.CharField(max_length=50, blank=True)
     price = models.DecimalField(max_digits=12, decimal_places=2)
     features = models.TextField(blank=True, help_text="Comma-separated or bullet list of exclusive features")
+
+    def get_formatted_price(self):
+        from apps.core.utils import format_inr
+        return format_inr(self.price)
 
     def __str__(self):
         return f"{self.vehicle.model} - {self.name}"
