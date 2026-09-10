@@ -1,0 +1,44 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Local environment & secrets
+.env
+.env.local
+.env.*.local
+
+# Databases
+*.sqlite3
+*.sqlite3-journal
+
+# Static collected files (WhiteNoise / Nginx target)
+staticfiles/
+
+# Logs
+logs/*.log
+!logs/.gitkeep
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Node & Frontend dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Operating System & IDEs
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Temporary / Scratch files
+scratch/
+.system_generated/

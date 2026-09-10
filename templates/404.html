@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}404 — Engine Stall | CAR DELIGHTS{% endblock %}
+
+{% block content %}
+<div class="container py-5 text-center my-auto">
+  <div class="row justify-content-center py-5">
+    <div class="col-lg-8 col-md-10">
+      <div class="card p-5 border-0 shadow-lg" style="background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(16px); border-radius: 20px; border: 1px solid rgba(229, 9, 20, 0.25);">
+        
+        <div class="mb-4">
+          <span class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 100px; height: 100px; background: linear-gradient(135deg, rgba(229, 9, 20, 0.2), rgba(229, 9, 20, 0.05)); border: 2px solid #E50914; box-shadow: 0 0 30px rgba(229, 9, 20, 0.4);">
+            <i class="bi bi-exclamation-triangle-fill text-danger fs-1"></i>
+          </span>
+        </div>
+
+        <h1 class="display-3 fw-bold text-white mb-2 tracking-tight">404</h1>
+        <h3 class="text-danger fw-semibold mb-3">ENGINE STALL — WRONG TURN</h3>
+        <p class="text-muted fs-5 mb-4 mx-auto" style="max-width: 580px;">
+          The automotive coordinates or track you requested could not be located. It might have been shifted, renamed, or temporarily pulled into the pit lane.
+        </p>
+
+        <div class="d-flex flex-wrap justify-content-center gap-3 mt-2">
+          <a href="{% url 'core:home' %}" class="btn btn-danger px-4 py-2 fw-semibold rounded-pill d-inline-flex align-items-center gap-2 shadow">
+            <i class="bi bi-house-door-fill"></i> Back to Starting Grid
+          </a>
+          <a href="{% url 'vehicles:vehicle_list' %}" class="btn btn-outline-light px-4 py-2 fw-semibold rounded-pill d-inline-flex align-items-center gap-2">
+            <i class="bi bi-car-front"></i> Browse Showroom
+          </a>
+          <a href="{% url 'products:product_list' %}" class="btn btn-outline-secondary px-4 py-2 fw-semibold rounded-pill d-inline-flex align-items-center gap-2">
+            <i class="bi bi-tools"></i> Spare Parts Catalog
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

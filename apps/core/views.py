@@ -4,7 +4,10 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.db.models import Q
+from django.db import connection
+from django.core.cache import cache
 import json
+import time
 
 from apps.vehicles.models import Vehicle, Brand
 from apps.products.models import Product, Category, ProductBrand
@@ -243,3 +246,53 @@ def contact_view(request):
         messages.success(request, "Thank you for reaching out to Car Delights! Our automotive concierge team will contact you shortly.")
         return redirect('core:contact')
     return render(request, 'core/contact.html')
+
+
+def health_check_view(request):
+    """
+    Production health check endpoint for load balancers (AWS ALB, K8s, Docker).
+    Returns 200 OK with system status metrics.
+    """
+    health_status = {
+        'status': 'healthy',
+        'timestamp': time.time(),
+        'services': {
+            'database': 'unknown',
+            'cache': 'unknown'
+        }
+    }
+    
+    # Check Database connectivity
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+            cursor.fetchone()
+        health_status['services']['database'] = 'connected'
+    except Exception as e:
+        health_status['status'] = 'unhealthy'
+        health_status['services']['database'] = f'error: {str(e)}'
+
+    # Check Cache connectivity
+    try:
+        cache.set('health_check_test_key', 'ok', timeout=10)
+        val = cache.get('health_check_test_key')
+        if val == 'ok':
+            health_status['services']['cache'] = 'connected'
+        else:
+            health_status['services']['cache'] = 'degraded'
+    except Exception as e:
+        health_status['services']['cache'] = f'error: {str(e)}'
+
+    http_status = 200 if health_status['status'] == 'healthy' else 503
+    return JsonResponse(health_status, status=http_status)
+
+
+def error_404_view(request, exception=None):
+    """Custom 404 page styled with Car Delights luxury theme."""
+    return render(request, '404.html', status=404)
+
+
+def error_500_view(request):
+    """Custom 500 page styled with Car Delights luxury theme."""
+    return render(request, '500.html', status=500)
+

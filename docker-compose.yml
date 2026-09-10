@@ -1,0 +1,96 @@
+services:
+  # ----------------------------------------------------------------------------
+  # 1. Database Service: PostgreSQL 16
+  # ----------------------------------------------------------------------------
+  db:
+    image: postgres:16-alpine
+    container_name: cardelights_db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-cardelights_db}
+      POSTGRES_USER: ${POSTGRES_USER:-cardelights}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cardelights_secure_pass_2026}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-cardelights} -d ${POSTGRES_DB:-cardelights_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - cardelights_network
+
+  # ----------------------------------------------------------------------------
+  # 2. In-Memory Cache Service: Redis 7
+  # ----------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: cardelights_redis
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - cardelights_network
+
+  # ----------------------------------------------------------------------------
+  # 3. Application Service: Django / Gunicorn WSGI
+  # ----------------------------------------------------------------------------
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cardelights_web
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      DATABASE_URL: postgres://${POSTGRES_USER:-cardelights}:${POSTGRES_PASSWORD:-cardelights_secure_pass_2026}@db:5432/${POSTGRES_DB:-cardelights_db}
+      REDIS_URL: redis://redis:6379/1
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+      - ./logs:/app/logs
+    expose:
+      - "8000"
+    restart: unless-stopped
+    networks:
+      - cardelights_network
+
+  # ----------------------------------------------------------------------------
+  # 4. Reverse Proxy & Web Server: Nginx
+  # ----------------------------------------------------------------------------
+  nginx:
+    image: nginx:alpine
+    container_name: cardelights_nginx
+    depends_on:
+      - web
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_volume:/app/staticfiles:ro
+      - media_volume:/app/media:ro
+    restart: unless-stopped
+    networks:
+      - cardelights_network
+
+networks:
+  cardelights_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  static_volume:
+  media_volume:

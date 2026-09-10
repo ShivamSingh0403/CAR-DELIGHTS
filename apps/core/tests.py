@@ -315,3 +315,16 @@ class CarDelightsTestSuite(TestCase):
         self.assertEqual(data['status'], 'success')
         self.assertTrue(len(data['results']) > 0)
 
+    def test_health_check_endpoint(self):
+        res = self.client.get('/health/')
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertEqual(data['status'], 'healthy')
+        self.assertEqual(data['services']['database'], 'connected')
+
+    def test_custom_404_page(self):
+        res = self.client.get('/a-route-that-definitely-does-not-exist-404/')
+        self.assertEqual(res.status_code, 404)
+        self.assertContains(res, "ENGINE STALL", status_code=404)
+
+

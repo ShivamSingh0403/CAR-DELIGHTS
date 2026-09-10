@@ -1,9 +1,14 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.static import serve
+from apps.core.views import health_check_view
 
 urlpatterns = [
+    # Production Health Check (Load Balancers & Monitoring)
+    path('health/', health_check_view, name='health_check'),
+
     path('admin/', admin.site.urls),
     path('', include('apps.core.urls', namespace='core')),
     path('accounts/', include('apps.accounts.urls', namespace='accounts')),
@@ -18,9 +23,19 @@ urlpatterns = [
     path('offers/', include('apps.offers.urls', namespace='offers')),
 ]
 
+# Media and Static asset routing
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+else:
+    # Standalone container fallback for media files
+    urlpatterns += [
+        re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    ]
+
+# Custom Error Handlers (404 & 500)
+handler404 = 'apps.core.views.error_404_view'
+handler500 = 'apps.core.views.error_500_view'
 
 # Customize Admin Site Headers
 admin.site.site_header = "CAR DELIGHTS — Master Admin Control"
