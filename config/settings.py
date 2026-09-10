@@ -11,10 +11,7 @@ load_dotenv(BASE_DIR / '.env')
 
 # Quick-start development settings - unsuitable for production
 # In production, DJANGO_SECRET_KEY must be set in the environment.
-SECRET_KEY = os.getenv(
-    'DJANGO_SECRET_KEY',
-    'django-insecure-car-delights-premium-automotive-platform-secret-key-2026'
-)
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY') or 'django-insecure-car-delights-premium-automotive-platform-secret-key-2026'
 
 # Debug mode: default True for development if not explicitly configured in .env
 DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() in ('true', '1', 't', 'yes')
