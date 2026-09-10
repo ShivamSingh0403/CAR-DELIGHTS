@@ -14,6 +14,7 @@ __pycache__/
 
 # Static collected files (WhiteNoise / Nginx target)
 staticfiles/
+media/
 
 # Logs
 logs/*.log
