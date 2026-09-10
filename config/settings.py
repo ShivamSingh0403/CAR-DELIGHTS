@@ -146,9 +146,7 @@ USE_I18N = True
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = os.getenv('STATIC_URL') or '/static/'
-if not STATIC_URL.endswith('/'):
-    STATIC_URL += '/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
@@ -165,15 +163,8 @@ STORAGES = {
 }
 
 # Media files
-MEDIA_URL = os.getenv('MEDIA_URL') or '/media/'
-if not MEDIA_URL.endswith('/'):
-    MEDIA_URL += '/'
+MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-
-# Ensure STATIC_URL and MEDIA_URL have distinct URL paths
-if STATIC_URL == MEDIA_URL:
-    STATIC_URL = '/static/'
-    MEDIA_URL = '/media/'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
