@@ -23,13 +23,14 @@ urlpatterns = [
     path('offers/', include('apps.offers.urls', namespace='offers')),
 ]
 
-# Media and Static asset routing (explicitly appended for local fallback & static route support)
+# Media and Static asset routing (local fallback & static route support)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
-# Production fallback for media files when DEBUG=False
+# Production serve fallback for media and static assets (DEBUG=False support on Vercel)
 urlpatterns += [
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    re_path(r'^static/(?P<path>.*)$', serve, {'document_root': settings.STATIC_ROOT}),
 ]
 
 # Custom Error Handlers (404 & 500)
