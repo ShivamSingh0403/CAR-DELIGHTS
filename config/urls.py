@@ -23,15 +23,14 @@ urlpatterns = [
     path('offers/', include('apps.offers.urls', namespace='offers')),
 ]
 
-# Media and Static asset routing
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-else:
-    # Standalone container fallback for media files
-    urlpatterns += [
-        re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
-    ]
+# Media and Static asset routing (explicitly appended for local fallback & static route support)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+# Production fallback for media files when DEBUG=False
+urlpatterns += [
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+]
 
 # Custom Error Handlers (404 & 500)
 handler404 = 'apps.core.views.error_404_view'
